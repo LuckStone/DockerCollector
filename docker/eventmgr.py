@@ -1,20 +1,31 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 20016-2016 The Cloudsoar.
 # See LICENSE for details.
+import json
+
 from common.util import Result
 from console.consoleauthen import ConsoleAuthen
 from frame.authen import ring0, ring8
 from frame.errcode import NO_SUCH_USER_ERR, INVALID_PASSWORD_ERR
-from mongodb.dbconst import ID
+from mongodb.dbconst import ID, MAIN_DB_NAME
 from mongodb.dbutil import Condition4Page
+from mongodb.extdbimpl import ExtDBImpl
 from mongoimpl.consoledb.userdbimpl import UserDBImpl
 
 
 _ALL = "All"
 
 class EventMgr(object):
+    db = MAIN_DB_NAME
+    
     def __init__(self):
         pass
+    
+
+    @ring8
+    def Save(self,post_data,*args):
+        dbmgr = ExtDBImpl(self.db,'notification')
+        return dbmgr.create(json.loads(post_data))
     
     @ring0
     @Condition4Page

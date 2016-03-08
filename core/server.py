@@ -15,6 +15,7 @@ from console.consolehandler import ConsoleRequestHandler
 from docker.dockerhandler import DockerRequestHandler
 from frame.Logger import PrintStack, Log
 from frame.ajaxresource import AjaxResource
+from frame.dockerevent import DockerEvent
 from frame.web import mimesuffix
 
 
@@ -90,7 +91,7 @@ class WebService(service.Service):
     def get_resource(self):
         r = RootResource(self)
         r.putChild("admin", AjaxResource(self,self.ConsoleHandler))
-        r.putChild("event", AjaxResource(self,self.DockerHandler))
+        r.putChild("event", DockerEvent(self,self.DockerHandler))
         
         return r
     

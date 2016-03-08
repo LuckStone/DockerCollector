@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 20016-2016 The Cloudsoar.
 # See LICENSE for details.
-
 """
 分发控制台提交的请求
 """
@@ -10,7 +9,7 @@ import time
 import xmlrpclib
 
 from common.util import Result, LawResult
-from console.consoleauthen import ConsoleAuthen
+from docker.dockerauthen import DockerAuthen
 from docker.eventmgr import EventMgr
 from frame.Logger import PrintStack, SysLog, Log
 from frame.authen import ring8
@@ -54,15 +53,7 @@ class DockerRequestHandler(object):
     def get_method_path(self,passport,mod_name):
         ring = passport["ring"]
         method = passport["method"]
-        shortcut = passport["shortcut"]
         methodSign = "%s.%s"%(mod_name,method)
-        shortcutSign = "%s.%s"%(mod_name,shortcut)
-        
-        # 如果快捷调用存在，要受快捷方式的权限控制
-        if shortcutSign in self.method_list:
-            if ring in self.method_list[methodSign]:
-                return mod_name
-            return None
         
         if methodSign in self.method_list and ring in self.method_list[methodSign]:
             return mod_name
@@ -77,10 +68,10 @@ class DockerRequestHandler(object):
         self.activate_server()
         
     
-    def dispatch(self,method,token=None,module_name=None,*params,**kw):
-        authRlt = ConsoleAuthen.instance().verify_token(method, token,*params)
+    def dispatch(self,method, post_data=None, *params,**kw):
+        authRlt = DockerAuthen.instance().verify_token(method, '', *params)
         if authRlt.success:
-            passport = authRlt.content            
+            passport = authRlt.content
         else:
             Log(4,"check token fail")
             return authRlt
@@ -91,20 +82,19 @@ class DockerRequestHandler(object):
             if not self.__service_active:
                 raise OPException("Service inactive yet",ERR_SERVICE_INACTIVE)
 
-            methodMod = self.get_method_path(passport,module_name)
+            methodMod = self.get_method_path(passport,'Event')
             if methodMod:
-                shortcut = passport["shortcut"]
                 func = None
                 if methodMod == self.moduleId:
-                    func = getattr(self,shortcut,None) or getattr(self,method,None)
+                    func = getattr(self,method,None)
                 else:
                     mod = getattr(self,methodMod,None)
-                    func = getattr(mod,shortcut,None) or getattr(mod,method,None)
+                    func = getattr(mod,method,None)
 
                 if  func.func_code.co_flags & 0x8 :
-                    _return = func(*params,passport=passport)
+                    _return = func(post_data, *params, passport=passport)
                 else:
-                    _return = func(*params)
+                    _return = func(post_data, *params)
             else:
                 _return = Result("",PERMISSION_DENIED_ERR,"Sorry,The method not support.")
             ret = _return
