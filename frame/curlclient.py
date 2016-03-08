@@ -51,14 +51,18 @@
  */
 """
 
-from frame.curlclientauth import CURLClientAuth
-from xml.dom import Node
-from xml.dom.minidom import parseString
 import cStringIO
-import pycurl
 import time
 import traceback
 import types
+from xml.dom import Node
+from xml.dom.minidom import parseString
+
+import pycurl
+
+from frame.Logger import Log
+from frame.curlclientauth import CURLClientAuth
+
 
 #constants
 DEFAULT_LANGUAGE = "en"        #en, zh_TW, and zh_CN
@@ -86,6 +90,7 @@ SCHEDULE_TYPE_WEEKLY = "W"
 SCHEDULE_TYPE_MONTHLY = "M"
 
 #Http status code
+HTTP_EXCEPTION = 1
 HTTP_OK_200 = 200   #OK
 HTTP_CREATED_201 = 201  #resource created
 
@@ -99,6 +104,57 @@ HEADER_ADMIN = 'x-pan-admin'
 SUCCESS = "SUCCESS"
 FAIL = "FAILURE"    
 
+
+class Response(object):
+    def __init__(self,respond_body, respond_headers, status_code=HTTP_OK_200, msg="done"):
+        """
+        respond_http_status_code = ch.getinfo( pycurl.HTTP_CODE )
+            respond_headers_array = ch.respondheader.getvalue()
+            respond_body = ch.response.getvalue()
+        """
+        super(Response, self).__init__()
+        self.status_code = status_code
+        self.respond_headers = respond_headers
+        self.respond_body = respond_body
+        self.message = msg
+        
+    @property
+    def success(self):
+        return self.status_code == HTTP_OK_200
+    
+    @property
+    def fail(self):
+        return self.status_code != HTTP_OK_200
+       
+    @property    
+    def body(self):
+        return getattr(self,"respond_body",0)
+    
+    @body.setter    
+    def body(self,new_value):
+        setattr(self,"respond_body",new_value)
+
+    def __getitem__(self, key):
+        if "body" ==key:
+            return self.respond_body
+        elif "status_code" ==key:
+            return getattr(self,"status_code",0)
+        elif "message" ==key:
+            return self.message
+        else:
+            return None
+        
+    def __str__(self):
+        return "Response<'status_code':%d,'headers':'%s','body':%s,'message':'%s'>"% \
+            (self.status_code, self.respond_headers, self.respond_body, self.message)
+            
+    def log(self, act):
+        if self.status_code == HTTP_OK_200:
+            Log(3, '[%s] success, return [%s]'%(act, self.respond_body))
+        else:
+            Log(1, '[%s] fail, return [%s],massage[%s]'%(act, self.respond_body, self.message))
+        
+    
 
 class CURLClient:
     def __init__( self, _id, key ,domain='127.0.0.1'): 
@@ -146,6 +202,24 @@ class CURLClient:
     
     def setAdmin_code(self,admin_code):
         self.admin_code = admin_code 
+        
+        
+    def do_get( self, url ):
+        try:
+            self.date_time = time.strftime( "%a, %d %b %Y %X +0000", time.gmtime() )
+            Headers = self.getBasicHeaders()
+            return self.send_http_request(url, Headers, GET )
+        except Exception, e:
+            return Response('', '', HTTP_EXCEPTION, str(e))
+        
+    def do_delete( self, url ):
+        try:
+            self.date_time = time.strftime( "%a, %d %b %Y %X +0000", time.gmtime() )
+            Headers = self.getBasicHeaders()
+            return self.send_http_request(url, Headers, DELETE )
+        except Exception, e:
+            return Response('', '', HTTP_EXCEPTION, str(e))
+
         
     def callRemote(self, url, method, post_data=None):
         try:
@@ -288,22 +362,17 @@ class CURLClient:
             ch.setopt( ch.WRITEFUNCTION, ch.response.write )
 
             ch.perform()
-            self.respond_http_status_code = ch.getinfo( pycurl.HTTP_CODE )
-            self.respond_headers_array = ch.respondheader.getvalue()
-            self.respond_body = ch.response.getvalue()
+            respond_http_status_code = ch.getinfo( pycurl.HTTP_CODE )
+            respond_headers_array = ch.respondheader.getvalue()
+            respond_body = ch.response.getvalue()
 
-            if self.respond_http_status_code != 200:
-                print self.respond_body
-                print ch.errstr()
-                # raise Exception( ch.errstr() )
             ch.close()
-            return self.respond_http_status_code
+            return Response(respond_body, respond_headers_array, respond_http_status_code)
         except Exception, e:
             traceback.print_exc()
-            self.error_message = str( e )
             if ch != '':
                 ch.close()
-            return False
+            return Response('', '', HTTP_EXCEPTION, str(e))
 
 
     # read the respond header from Aspen Cloud Storage

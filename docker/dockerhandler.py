@@ -11,6 +11,7 @@ import xmlrpclib
 from common.util import Result, LawResult
 from docker.dockerauthen import DockerAuthen
 from docker.eventmgr import EventMgr
+from docker.registryclient import RegistryClient
 from frame.Logger import PrintStack, SysLog, Log
 from frame.authen import ring8
 from frame.errcode import ERR_METHOD_CONFLICT, ERR_SERVICE_INACTIVE, \
@@ -66,6 +67,13 @@ class DockerRequestHandler(object):
         self.init_method(self.Event,"Event")
         
         self.activate_server()
+        
+        client = RegistryClient()
+        client.delete_image('test', 'sha256:fea8895f450959fa676bcc1df0611ea93823a735a01205fd8622846041d0c7cf')
+        client.listing_repositories()
+        client.listing_image_tags('test')
+        
+        
         
     
     def dispatch(self,method, post_data=None, *params,**kw):
