@@ -96,7 +96,7 @@ class DBBase(object):
     def read_next_id(self):
         try:
             r = self.dbmgr.getID(self.db,IDENTITY_TABLE, {"_id":self.cn},{"next":1})
-            _id = r["next"]
+            _id = getattr(r, 'next', 0)
         except Exception,e:
             Log(1,"Get id fail as [%s]"%(str(e)))
             return Result("",FAIL,"Get id fail as [%s]"%(str(e)))

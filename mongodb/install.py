@@ -3,13 +3,8 @@
 # Copyright (c) 20016-2016 The Cloudsoar.
 # See LICENSE for details.
 
-from mongodb.dbconst import ID, COMMODITY_TABLE, PRODUCTION_ORDER_TABLE, \
-    PRODUCTION_TASK_TABLE, MAIN_DB_NAME, STOCK_TABLE, SYNCTASK, CONFIG_TABLE, \
-    VM_INSTANCE_TABLE, VM_TEMPLATE_TABLE, PRODUCTION_PLAN_TABLE, TEMPLATE_PART_TABLE, \
-    RESOURCE_TABLE, SALE_PLAN_TABLE, CITRIX_SERVER_TABLE, LOCATION_TABLE, \
-    EXTENSION_TABLE, USER_TABLE, TASK_TABLE, MODEL_TABLE, OPERATE_TABLE, \
-    SUB_TASK_TABLE, VM_TABLE, PART_PACKAGE_TABLE, WORKBENCH_TABLE, RPCBOX_TABLE, \
-    BOX_ENTITY_TABLE, RPC_REQ_TABLE, IDENTITY_TABLE
+from mongodb.dbconst import ID, MAIN_DB_NAME, SYNCTASK, CONFIG_TABLE, \
+    USER_TABLE, TASK_TABLE, SUB_TASK_TABLE, IDENTITY_TABLE
 from mongodb.dbmgr import DBMgr
 from frame.Logger import SysLog
 import getopt
@@ -169,37 +164,14 @@ class CommonDB(object):
         
 
 Tables = {
-    COMMODITY_TABLE:"CMO",              # 存放商品详细信息   
-    PRODUCTION_ORDER_TABLE:"ORD",       # 存放AP下达的生产订单
-    PRODUCTION_TASK_TABLE:"TSK",        # 临时存放生产操作的任务信息 
-    STOCK_TABLE:"STK",                  # 库存信息，存备货方案与vm实例关联信息
     SYNCTASK:None,
-    CONFIG_TABLE:None,                  # 存放支持修改的配置项
-    VM_INSTANCE_TABLE:None,             # 存放产品实例信息
-    VM_TEMPLATE_TABLE:None,             # 存放模板信息
-    PRODUCTION_PLAN_TABLE:None,         # 存放备货方案信息
-    TEMPLATE_PART_TABLE:None,           # 模板配件信息
-    RESOURCE_TABLE:None,                # 存放系统资源信息
-    SALE_PLAN_TABLE:None,                   # 存放产品价格信息
-    CITRIX_SERVER_TABLE:None,           # 存放Citrix服务器信息
-    LOCATION_TABLE:None,                # 存放地址信息
+    CONFIG_TABLE:'CFG',                  # 存放支持修改的配置项
     
-    EXTENSION_TABLE:None,               # 保存扩展服务信息
     USER_TABLE:None,                    # 存放用户信息
     TASK_TABLE:None,             
-    COMMODITY_TABLE:None,        
-    MODEL_TABLE:None,                   # 存放型号信息
-    PRODUCTION_ORDER_TABLE:None,        # 存放订单的信息
-    OPERATE_TABLE:None,                 # 存放操作的记录
-    PRODUCTION_TASK_TABLE:None,         # 存放生产操作任务的过程信息 
+   
     SUB_TASK_TABLE:None,                # 存放子任务，子任务是任务计划的一部分， 不能单独恢复 
-    VM_TABLE:None,                      # 存放vm信息
-    PART_PACKAGE_TABLE:None,            # 存放配件（组合）信息
-    WORKBENCH_TABLE:None,               # 存放订单处理的中间过程信息
 
-    RPCBOX_TABLE:None,       
-    BOX_ENTITY_TABLE:None,  
-    RPC_REQ_TABLE:None,       
 }
 
 def main():
