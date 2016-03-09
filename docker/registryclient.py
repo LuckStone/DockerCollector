@@ -12,7 +12,7 @@ import json
 
 from frame.Logger import Log
 from frame.curlclient import CURLClient
-from mongoimpl.docker.notifydbimpl import NotifyDBImpl
+from mongoimpl.docker.repositorydbimpl import RepositoryDBImpl
 from mongoimpl.docker.tagdbimpl import TagDBImpl
 
 
@@ -34,7 +34,7 @@ class RegistryClient(CURLClient):
 
     def load_registry_data(self):
         data = self.listing_repositories(100)
-        NotifyDBImpl.instance().upsert_repository(data['repositories'])
+        RepositoryDBImpl.instance().upsert_repository(data['repositories'])
         
         for repo in data['repositories']:
             tags = self.listing_image_tags(repo)

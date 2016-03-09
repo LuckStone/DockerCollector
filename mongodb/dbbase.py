@@ -93,10 +93,10 @@ class DBBase(object):
         else:
             return Result(PageResult(arr,count))
         
-    def read_next_id(self):
+    def read_next_id(self, step=1):
         try:
-            r = self.dbmgr.getID(self.db,IDENTITY_TABLE, {"_id":self.cn},{"next":1})
-            _id = getattr(r, 'next', 0)
+            r = self.dbmgr.getID(self.db,IDENTITY_TABLE, {"_id":self.cn},{"next":step})
+            _id = r.get('next', 0)
         except Exception,e:
             Log(1,"Get id fail as [%s]"%(str(e)))
             return Result("",FAIL,"Get id fail as [%s]"%(str(e)))
@@ -180,15 +180,18 @@ class DBBase(object):
         else:
             return Result(ret)
         
-    def batch_insert(self,record_list):
-        for record in record_list:
-            if ID not in record:
-                rlt = self.read_next_id()
-                if rlt.success:
-                    record[ID] = rlt.content
-                else:
-                    Log(1,"batch_insert.read_next_id fail [%s]"%str(rlt.message))
-        
+    def batch_insert(self, record_list):
+        if ID not in record_list[0]:
+            rlt = self.read_next_id(len(record_list))
+            if not rlt.success:
+                Log(1,"batch_insert.read_next_id fail [%s]"%str(rlt.message))
+                return rlt
+            
+            _id = rlt.content
+            for record in record_list:
+                record[ID] = _id
+                _id += 1
+
         try:
             ret = self.dbmgr.insert_records(self.db,self.cn,record_list)
         except Exception,e:

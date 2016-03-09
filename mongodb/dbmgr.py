@@ -257,17 +257,17 @@ class DBMgr(object):
         return self.conn[db][collection].update(query,{"$set":value},False,False,False,True)
 
     def find_and_modify(self,db,collection,query,value,upsert=False):
-        return self.conn[db][collection].find_and_modify(query,{'$set':value},upsert)
+        return self.conn[db][collection].find_one_and_update(query,{'$set':value},upsert)
 
     
     def remove_all(self,db,collection):
         return self.conn[db][collection].remove(None,True)
     
     def getID(self,db,collection,query,step):
-        return self.conn[db][collection].find_and_modify(query,{"$inc":step},True)
+        return self.conn[db][collection].find_one_and_update(query,{"$inc":step},upsert=True)
     
     def find_and_modify_num(self,db,collection,query,value,upsert=False):
-        return self.conn[db][collection].find_and_modify(query,{'$inc':value},upsert)
+        return self.conn[db][collection].find_one_and_update(query,{'$inc':value}, upsert=upsert)
     
     def create_js(self,db,func_name,func_body):
         self.del_js(db,func_name)

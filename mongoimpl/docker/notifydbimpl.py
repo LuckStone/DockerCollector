@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 20016-2016 The Cloudsoar.
 # See LICENSE for details.
-from common.guard import LockGuard
-from frame.Logger import Log
-from mongodb.dbbase import DBBase
-from mongodb.dbconst import MAIN_DB_NAME, NOTIFICATION_TABLE, ID
-import threading
-
 """
 Implement Order data manage
 """
+
+import threading
+
+from common.guard import LockGuard
+from common.util import NowMilli, Result
+from frame.Logger import Log
+from mongodb.dbbase import DBBase
+from mongodb.dbconst import MAIN_DB_NAME, NOTIFICATION_TABLE, ID
 
 
 class NotifyDBImpl(DBBase):
@@ -31,11 +33,10 @@ class NotifyDBImpl(DBBase):
     def __init__(self):
         DBBase.__init__(self, self.db, self.collection)
         
-    def upsert_repository(self, repositories):
-        pass
-        
+    
             
-            
+    
+             
             
             
             
