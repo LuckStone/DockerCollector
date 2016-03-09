@@ -3,17 +3,15 @@
 # See LICENSE for details.
 
 
-from common.util import Result, CResult, PageResult
-from mongodb.dbconst import ID, IDENTITY_TABLE
-from mongodb.dbmgr import DBMgr
-from frame.Logger import Log
-from frame.errcode import DATABASE_EXCEPT_ERR, NO_SUCH_RECORD_ERR, FAIL
 import datetime
 import random
 import string
 
-
-
+from common.util import Result, CResult, PageResult
+from frame.Logger import Log, PrintStack
+from frame.errcode import DATABASE_EXCEPT_ERR, NO_SUCH_RECORD_ERR, FAIL
+from mongodb.dbconst import ID, IDENTITY_TABLE
+from mongodb.dbmgr import DBMgr
 
 
 class DBBase(object):
@@ -183,6 +181,14 @@ class DBBase(object):
             return Result(ret)
         
     def batch_insert(self,record_list):
+        for record in record_list:
+            if ID not in record:
+                rlt = self.read_next_id()
+                if rlt.success:
+                    record[ID] = rlt.content
+                else:
+                    Log(1,"batch_insert.read_next_id fail [%s]"%str(rlt.message))
+        
         try:
             ret = self.dbmgr.insert_records(self.db,self.cn,record_list)
         except Exception,e:

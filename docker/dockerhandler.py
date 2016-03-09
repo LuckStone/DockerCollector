@@ -10,7 +10,7 @@ import xmlrpclib
 
 from common.util import Result, LawResult
 from docker.dockerauthen import DockerAuthen
-from docker.eventmgr import EventMgr
+from docker.notifymgr import NotifyMgr
 from docker.registryclient import RegistryClient
 from frame.Logger import PrintStack, SysLog, Log
 from frame.authen import ring8
@@ -63,16 +63,13 @@ class DockerRequestHandler(object):
     def init(self):
         self.init_method(self,self.moduleId)
         
-        self.Event = EventMgr()
-        self.init_method(self.Event,"Event")
+        self.Notify = NotifyMgr()
+        self.init_method(self.Notify,"Notify")
         
         self.activate_server()
         
         client = RegistryClient()
-        client.delete_image('test', 'sha256:fea8895f450959fa676bcc1df0611ea93823a735a01205fd8622846041d0c7cf')
-        client.listing_repositories()
-        client.listing_image_tags('test')
-        
+        client.load_registry_data()
         
         
     
@@ -90,7 +87,7 @@ class DockerRequestHandler(object):
             if not self.__service_active:
                 raise OPException("Service inactive yet",ERR_SERVICE_INACTIVE)
 
-            methodMod = self.get_method_path(passport,'Event')
+            methodMod = self.get_method_path(passport,'Notify')
             if methodMod:
                 func = None
                 if methodMod == self.moduleId:

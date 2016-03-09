@@ -9,27 +9,25 @@ from frame.authen import ring0, ring8
 from frame.errcode import NO_SUCH_USER_ERR, INVALID_PASSWORD_ERR
 from mongodb.dbconst import ID, MAIN_DB_NAME
 from mongodb.dbutil import Condition4Page
-from mongodb.extdbimpl import ExtDBImpl
 from mongoimpl.consoledb.userdbimpl import UserDBImpl
+from mongoimpl.docker.notifydbimpl import NotifyDBImpl
 
 
 _ALL = "All"
 
-class EventMgr(object):
+class NotifyMgr(object):
     db = MAIN_DB_NAME
     
     def __init__(self):
         pass
-    
 
     @ring8
     def Save(self,post_data,*args):
-        dbmgr = ExtDBImpl(self.db,'notification')
-        return dbmgr.create(json.loads(post_data))
+        return NotifyDBImpl.instance().create(json.loads(post_data))
     
     @ring0
     @Condition4Page
-    def getUsersSummary(self,filterObj, orderby ,pageNo,pagesize):
+    def getUsersSummary(self,filterObj, orderby ,pageNo, pagesize):
         if "name" in filterObj:
             filterObj["name"]={'$regex':filterObj["name"].strip()}
         return UserDBImpl.instance().read_record_page(filterObj, orderby, pageNo, pagesize)

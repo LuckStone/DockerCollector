@@ -7,9 +7,9 @@
 from common.util import Result
 from frame.authen import ring8
 from frame.errcode import NO_IMPLEMENT_INTERFACE_ERR
-from mongodb.dbconst import MAIN_DB_NAME, SUB_TASK_TABLE, \
-    OPERATE_TABLE
+from mongodb.dbconst import MAIN_DB_NAME, SUB_TASK_TABLE, TASK_TABLE
 from mongodb.extdbimpl import ExtDBImpl, PAGE, TREE, LIST
+
 
 TREE_DEFINE = {}
 
@@ -55,7 +55,7 @@ class TaskMgr(object):
     
     @ring8    
     def ReadTaskPage(self,cn,tag,operation):
-        dbmgr = ExtDBImpl(self.db,OPERATE_TABLE)
+        dbmgr = ExtDBImpl(self.db,TASK_TABLE)
         return dbmgr.ext_read_page(operation)
     
     @ring8    
