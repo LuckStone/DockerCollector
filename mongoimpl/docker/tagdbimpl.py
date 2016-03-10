@@ -33,6 +33,11 @@ class TagDBImpl(DBBase):
     def __init__(self):
         DBBase.__init__(self, self.db, self.collection)
         
+    def update_tag_info(self, repository, tag, data):
+        rlt = self.update({'repository':repository, 'tag_name':tag}, data)
+        if not rlt.success:
+            Log(1, 'update_tag_info[%s][%s]fail,as[%s]'%(repository, tag, rlt.message))
+        
     def upsert_tags(self, repository, tags):
         rlt = self.read_record_list({'repository':repository},fields=['tag_name'])
         if not rlt.success:
