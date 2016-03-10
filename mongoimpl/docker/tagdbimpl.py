@@ -33,10 +33,19 @@ class TagDBImpl(DBBase):
     def __init__(self):
         DBBase.__init__(self, self.db, self.collection)
         
-    def update_tag_info(self, repository, tag, data):
-        rlt = self.update({'repository':repository, 'tag_name':tag}, data)
+    def update_tag_info(self, repository, tag, digest):
+        rlt = self.update({'repository':repository, 'tag_name':tag}, {'digest':digest})
         if not rlt.success:
             Log(1, 'update_tag_info[%s][%s]fail,as[%s]'%(repository, tag, rlt.message))
+            
+    def is_tag_exist(self, tag, digest):
+        """
+        # digest 指向一个文件，和repository无关，只要内容一样，digest值就是一样的
+        """
+        rlt = self.count({'tag_name':tag, 'digest':digest})
+        if rlt.success and rlt.content>0:
+            return True
+        return False
         
     def upsert_tags(self, repository, tags):
         rlt = self.read_record_list({'repository':repository},fields=['tag_name'])

@@ -15,6 +15,7 @@ from common.util import Result
 from frame.Logger import Log, PrintStack
 from frame.curlclient import CURLClient
 from frame.errcode import FAIL
+from mongoimpl.docker.layerdbimpl import LayerDBImpl
 from mongoimpl.docker.repositorydbimpl import RepositoryDBImpl
 from mongoimpl.docker.tagdbimpl import TagDBImpl
 
@@ -56,7 +57,9 @@ class RegistryClient(CURLClient):
         for tag in tags:
             rlt = self.read_tag_detail(repository_name, tag)
             if rlt.success:
-                TagDBImpl.instance().update_tag_info(repository_name, tag, rlt.content)
+                if not TagDBImpl.instance().is_tag_exist(tag, rlt.content['digest']):
+                    TagDBImpl.instance().update_tag_info(repository_name, tag, rlt.content['digest'])
+                    LayerDBImpl.instance().save_layer_info(rlt.content)
         
     def listing_repositories( self, num, last=0 ):
         url = "http://" + self.domain + '/v2/_catalog?n=%d&last=%d'%(num, last)

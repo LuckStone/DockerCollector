@@ -14,6 +14,8 @@ REPOSITORY_TABLE       = "Repository"
 ORGNIZATION_TABLE      = "Orgnization"
 COMMENT_TABLE          = "Comment"
 TAG_TABLE              = "Tags"
+IMAGE_TABLE            = "Image"
+LAYER_TABLE            = "Layer"
 USER_GROUP_TABLE       = "User_Group"
 GROUP_NAMESPACE_TABLE  = "Group_Namespace"
 
