@@ -32,7 +32,12 @@ class LayerDBImpl(DBBase):
     def save_layer_info(self, image_info):
         arr = []
         for layer in image_info['fsLayers']:
-            arr.append({ID:layer['blobSum'],'image_id':image_info['digest']})
+            if 'blobSum' in layer:
+                arr.append({ID:layer['blobSum'],'image_id':image_info['digest']})
+            else:
+                layer[ID] = layer.pop('digest')
+                layer['image_id'] = image_info['digest']
+                arr.append(layer)
             
         if arr:
             rlt = self.batch_insert(arr)
@@ -40,7 +45,8 @@ class LayerDBImpl(DBBase):
                 Log(1, "LayerDBImpl save_layer_info fail,as[%s]"%(rlt.message))
         
             
-            
+    def add_layer_pull_num(self, digest):
+        self.find_and_modify_num({ID:digest}, {'pull_num':1}, True)
             
             
             

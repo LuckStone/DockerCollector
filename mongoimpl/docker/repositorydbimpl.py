@@ -33,6 +33,12 @@ class RepositoryDBImpl(DBBase):
     def __init__(self):
         DBBase.__init__(self, self.db, self.collection)
         
+    def is_repository_exsit(self, repository):
+        rlt = self.count({ID: repository})
+        if rlt.success and rlt.content>0:
+            return True
+        return False
+        
     def upsert_repository(self, repositories):
         rlt = self.read_record_list(fields=[])
         if not rlt.success:

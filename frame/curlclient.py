@@ -52,6 +52,7 @@
 """
 
 import cStringIO
+import re
 import time
 import traceback
 import types
@@ -62,6 +63,7 @@ import pycurl
 
 from frame.Logger import Log
 from frame.curlclientauth import CURLClientAuth
+from frame.httpsclient import HttpsClient
 
 
 #constants
@@ -93,7 +95,7 @@ SCHEDULE_TYPE_MONTHLY = "M"
 HTTP_EXCEPTION = 1
 HTTP_OK_200 = 200   #OK
 HTTP_CREATED_201 = 201  #resource created
-
+HTTP_UNAUTHORIZED = 401  # authentication required
 #Http header constants
 HEADER_HOST = 'Host'
 HEADER_DATE = 'Date'
@@ -164,6 +166,7 @@ class CURLClient:
         self.language = ""
         self.date_time = ""
         self.host = ""
+        self.token = ""
         self.signature = ""
         self.url = ""
         self.xml_body = ""
@@ -202,13 +205,43 @@ class CURLClient:
     
     def setAdmin_code(self,admin_code):
         self.admin_code = admin_code 
+    
+    def get_token(self, response):
+        m = re.search(r"Www-Authenticate: (.+)\r", response.respond_headers)
+        if not m:
+            Log(1,"get_token fail,header[%s]"%(response.respond_headers))
+            return False
         
+        txt = m.group(1)
+        data = {}
+        keys = txt.split(',')
+        if len(keys) != 3:
+            return False
+        
+        for key in keys:
+            arr = key.split('=')
+            if len(arr) != 2:
+                return False
+            
+            data[arr[0]] = arr[1].replace('"','')
+        
+        client = HttpsClient()
+        rlt = client.do_get(data['Bearer realm'], data['scope'], data['service'])
+        if rlt.success:
+            self.token = rlt.content['token']
+            return True
+        return False
         
     def do_get( self, url ):
         try:
             self.date_time = time.strftime( "%a, %d %b %Y %X +0000", time.gmtime() )
             Headers = self.getBasicHeaders()
-            return self.send_http_request(url, Headers, GET )
+            response = self.send_http_request(url, Headers, GET )
+        
+            if response.status_code == HTTP_UNAUTHORIZED and self.get_token(response):
+                return self.do_get(url)
+            else:
+                return response
         except Exception, e:
             return Response('', '', HTTP_EXCEPTION, str(e))
         
@@ -402,10 +435,8 @@ class CURLClient:
         Header.append( HEADER_HOST + ": " + self.domain )
         Header.append( HEADER_DATE + ": " + self.date_time )
 
-        if self.signature:
-            Header.append( HEADER_AUTH + ": " + self.user_access_id + ":" + self.signature )
-        if self.admin_code:
-            Header.append( HEADER_ADMIN + ": " + self.admin_code)
+        if self.token:
+            Header.append( HEADER_AUTH + ": Bearer %s"%(self.token) )
         return Header
     
 

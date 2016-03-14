@@ -57,10 +57,10 @@ class RegistryClient(CURLClient):
         for tag in tags:
             rlt = self.read_tag_detail(repository_name, tag)
             if rlt.success:
-                if not TagDBImpl.instance().is_tag_exist(tag, rlt.content['digest']):
+                if not TagDBImpl.instance().is_tag_exist(repository_name, tag, rlt.content['digest']):
                     TagDBImpl.instance().update_tag_info(repository_name, tag, rlt.content['digest'])
                     LayerDBImpl.instance().save_layer_info(rlt.content)
-        
+    
     def listing_repositories( self, num, last=0 ):
         url = "http://" + self.domain + '/v2/_catalog?n=%d&last=%d'%(num, last)
         response = self.do_get(url)
@@ -111,6 +111,35 @@ class RegistryClient(CURLClient):
 
             
         m = re.search(r"Docker-Content-Digest: ([^\s]+)*", response.respond_headers)
+        if m:
+            info['digest'] = m.group(1)
+        else:
+            Log(1,"repository_detail get Docker-Content-Digest fail,header[%s]"%(response.respond_headers))
+            
+        if info:
+            return Result(info)
+        else:
+            return Result('', FAIL, 'Fail Get data from registry.')
+        
+    
+        
+    def read_tag_detail2(self, url):
+        url = url.replace('localhost:5000',self.domain)
+        response = self.do_get(url)
+        if response.fail:
+            response.log('repository_detail')
+            return Result(response.body, FAIL, response.message)
+        
+        info = {}
+        try:
+            data = json.loads(response.body)
+            info['fsLayers'] = data.get('layers',[])
+        except Exception:
+            PrintStack()
+            Log(1,"repository_detail format to json fail,body[%s]"%(response.body))
+
+            
+        m = re.search(r"Docker-Content-Digest: ([^\s]+)", response.respond_headers)
         if m:
             info['digest'] = m.group(1)
         else:

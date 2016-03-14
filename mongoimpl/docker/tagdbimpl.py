@@ -34,18 +34,28 @@ class TagDBImpl(DBBase):
         DBBase.__init__(self, self.db, self.collection)
         
     def update_tag_info(self, repository, tag, digest):
-        rlt = self.update({'repository':repository, 'tag_name':tag}, {'digest':digest})
+        rlt = self.update({'repository':repository, 'tag_name':tag}, {'digest':digest}, True)
         if not rlt.success:
             Log(1, 'update_tag_info[%s][%s]fail,as[%s]'%(repository, tag, rlt.message))
             
-    def is_tag_exist(self, tag, digest):
+    def is_tag_exist(self, repository, tag, digest):
         """
         # digest 指向一个文件，和repository无关，只要内容一样，digest值就是一样的
         """
-        rlt = self.count({'tag_name':tag, 'digest':digest})
+        query = {'digest':digest}
+        if repository:
+            query['repository'] = repository
+        if tag:
+            query['tag_name'] = tag
+            
+        rlt = self.count(query)
         if rlt.success and rlt.content>0:
             return True
         return False
+    
+    def add_tag_pull_num(self, digest):
+        self.find_and_modify_num({'digest':digest}, {'pull_num':1}, True)
+        
         
     def upsert_tags(self, repository, tags):
         rlt = self.read_record_list({'repository':repository},fields=['tag_name'])
@@ -69,14 +79,14 @@ class TagDBImpl(DBBase):
         if len(new_tags) > 0:
             rlt = self.batch_insert(new_tags)
             if rlt.success:
-                Log(3, 'upsert_tags insert [%d] new record'%(rlt.content) )
+                Log(3, 'upsert_tags insert [%s] new record'%(rlt.content) )
             else:
                 Log(1, 'upsert_tags insert record fail,as[%s]'%(rlt.message) )
         
         if len(lost_tags) > 0:
             rlt = self.updates({ID:{'$in':lost_tags}}, {'delete':NowMilli()})
             if rlt.success:
-                Log(3, 'upsert_tags update [%d] old record'%(rlt.content) )
+                Log(3, 'upsert_tags update [%s] old record'%(rlt.content) )
             else:
                 Log(1, 'upsert_tags update record fail,as[%s]'%(rlt.message) )
                 
