@@ -27,7 +27,8 @@ class APIResource(resource.Resource):
 #        self.wwwroot = wwwroot
         
     def render_GET(self,request):
-        arr = request.postpath
+        arr = [key for key in request.postpath if key]
+            
         if len(arr) == 0:
             return self.process(request, 'whatTime')
         
@@ -61,7 +62,7 @@ class APIResource(resource.Resource):
         return self.process(request,act,args)
     
     
-    def process(self,request,act,args):
+    def process(self,request,act,args=[]):
         params = {}
         for key in request.args:
             txt = request.args[key][0]

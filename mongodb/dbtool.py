@@ -80,4 +80,5 @@ def usage():
 
     
 if __name__ == "__main__":
-    main()
+    #main()
+    LoadJS('cloudsoar', 'overview.js')

@@ -2,7 +2,6 @@
 #!/usr/bin/env python
 # Copyright (c) 20016-2016 The Cloudsoar.
 # See LICENSE for details.
-
 """
 实现数据库的连接，查询，等功能
 """
@@ -13,7 +12,7 @@ import subprocess
 import threading
 import time
 
-from pymongo import Connection
+from pymongo.connection import Connection
 from pymongo.errors import AutoReconnect
 
 from common.guard import LockGuard
