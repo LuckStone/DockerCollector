@@ -44,8 +44,6 @@ class HttpsClient():
                 Log(5, "do_get return status_code[%s],content[%s]"%(r.status_code, str(r.json())))
                 return Result(r.json(), FAIL, 'get token fail')
 
-    
-    
     def do_post(self, url, params):
         body = json.dumps({u"body": u"Sounds great! I'll get right on it!"})
         auth = HTTPBasicAuth('admin', 'badmin')

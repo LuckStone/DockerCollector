@@ -4,16 +4,15 @@
 import json
 import re
 
-
 from common.util import Result
-from docker.registryclient import RegistryClient
 from frame.Logger import Log
 from frame.authen import ring8
 from frame.errcode import FAIL
 from mongodb.dbconst import MAIN_DB_NAME
-from mongoimpl.docker.layerdbimpl import LayerDBImpl
-from mongoimpl.docker.notifydbimpl import NotifyDBImpl
-from mongoimpl.docker.tagdbimpl import TagDBImpl
+from mongoimpl.registry.layerdbimpl import LayerDBImpl
+from mongoimpl.registry.notifydbimpl import NotifyDBImpl
+from mongoimpl.registry.tagdbimpl import TagDBImpl
+from registry.registryclient import RegistryClient
 
 
 _ALL = "All"

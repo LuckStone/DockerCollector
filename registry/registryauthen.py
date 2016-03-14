@@ -22,7 +22,7 @@ from frame.exception import OPException
 from mongodb.dbconst import ID
 
 
-class DockerAuthen(authen):
+class RegistryAuthen(authen):
     __lock = threading.Lock()
     __ulock = threading.Lock()
     

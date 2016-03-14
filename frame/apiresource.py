@@ -15,7 +15,7 @@ TREE = 'Tree'
 LIST = 'List'
 SET = 'set'
 
-class DockerEvent(resource.Resource):
+class APIResource(resource.Resource):
     NOT_FOUND = 8001
     FAILURE = 8002
     def __init__(self,service,handler,allow_none = True,useDateTime=False, encoding = "UTF-8"):
@@ -27,11 +27,11 @@ class DockerEvent(resource.Resource):
 #        self.wwwroot = wwwroot
         
     def render_GET(self,request):
-        arr = request.path.split("/")
-        if len(arr) < 4:
-            return 'The url is invalid!'
+        arr = request.postpath
+        if len(arr) == 0:
+            return self.process(request, 'whatTime')
         
-        return self.process(request, 'Read', arr[2:])
+        return self.process(request, 'get' + arr[0], arr[1:])
     
     def render_PUT(self,request):
         arr = request.path.split("/")
@@ -48,20 +48,20 @@ class DockerEvent(resource.Resource):
         return self.process(request, 'Delete',arr[2:])
     
     def render_POST(self,request):
-        data = request.content.getvalue()
-        SysLog(1,"render_POST[%s]"%(data))
-        
-#         data = json.loads(newdata)
-        
         arr = request.path.split("/")
+        if len(arr) < 4:
+            return 'The url is invalid!'
             
         act = 'Save'
         args = arr[2:]
-
-        return self.process(request,act,data,args)
+        if len(args) == 3:
+            if args[2] not in ['',PAGE,TREE,LIST,SET]:
+                act = args[2]
+                
+        return self.process(request,act,args)
     
     
-    def process(self,request,act,data,args):
+    def process(self,request,act,args):
         params = {}
         for key in request.args:
             txt = request.args[key][0]
@@ -72,7 +72,8 @@ class DockerEvent(resource.Resource):
             else:            
                 params[key] = obj
                 
-        args.append(params)
+        if len(params):
+            args.append(params)
         
         function = getattr(self.instance, "dispatch", None)
         if function is None:
@@ -85,7 +86,7 @@ class DockerEvent(resource.Resource):
             responseFailed = []
             request.notifyFinish().addErrback(responseFailed.append)
             
-            d = defer.maybeDeferred(function,act,data,*args)
+            d = defer.maybeDeferred(function,act,None,*args)
             d.addErrback(self._ebRender)
             d.addCallback(self._cbRender, request, responseFailed)
         return server.NOT_DONE_YET 
@@ -106,7 +107,7 @@ class DockerEvent(resource.Resource):
             ret["success"] = False
             ret["message"] = "faultCode:%d,faultString:%s"%(result.faultCode,result.faultString)
         elif isinstance(result,LawResult):
-            ret = result.to_ext_result()
+            ret = result.to_json()
         else:
             ret = result
 

@@ -11,12 +11,14 @@ import xmlrpclib
 from twisted.application import service
 from twisted.web import resource
 
+from api.apihandler import APIHandler
 from console.consolehandler import ConsoleRequestHandler
-from docker.dockerhandler import DockerRequestHandler
 from frame.Logger import PrintStack, Log
 from frame.ajaxresource import AjaxResource
-from frame.dockerevent import DockerEvent
+from frame.apiresource import APIResource
+from frame.registrynotify import RegistryNotify
 from frame.web import mimesuffix
+from registry.notifyhandler import NotifyHandler
 
 
 Fault = xmlrpclib.Fault
@@ -83,15 +85,17 @@ class WebService(service.Service):
     def init_resource(self):
         try:
             self.ConsoleHandler = ConsoleRequestHandler()
-            self.DockerHandler = DockerRequestHandler()
+            self.NotifyHandler = NotifyHandler()
+            self.APIHandler = APIHandler()
         except Exception,e:
             PrintStack()
             print "Error:"+str(e)
         
     def get_resource(self):
         r = RootResource(self)
-        r.putChild("admin", AjaxResource(self,self.ConsoleHandler))
-        r.putChild("event", DockerEvent(self,self.DockerHandler))
+        r.putChild("event", RegistryNotify(self, self.NotifyHandler))
+        r.putChild("api", APIResource(self, self.APIHandler))
+        r.putChild("admin", AjaxResource(self, self.ConsoleHandler))
         
         return r
     

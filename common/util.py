@@ -401,7 +401,7 @@ class Result(LawResult):
         return {"success":self.result==0,"KernelMessage":self.content,"message":self.message}
     
     def to_json(self):
-        return {'result':self.result,'message':self.message,'return':self.content}
+        return {'result':self.result,'message':self.message,'content':self.content}
 
 def StrResult(rlt_str):
     try:

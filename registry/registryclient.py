@@ -15,9 +15,9 @@ from common.util import Result
 from frame.Logger import Log, PrintStack
 from frame.curlclient import CURLClient
 from frame.errcode import FAIL
-from mongoimpl.docker.layerdbimpl import LayerDBImpl
-from mongoimpl.docker.repositorydbimpl import RepositoryDBImpl
-from mongoimpl.docker.tagdbimpl import TagDBImpl
+from mongoimpl.registry.layerdbimpl import LayerDBImpl
+from mongoimpl.registry.repositorydbimpl import RepositoryDBImpl
+from mongoimpl.registry.tagdbimpl import TagDBImpl
 
 
 class RegistryClient(CURLClient):

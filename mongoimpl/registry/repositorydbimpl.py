@@ -74,6 +74,14 @@ class RepositoryDBImpl(DBBase):
         return Result(len(new_repos) + len(lost_repos))
         
         
+    def list_repository(self, namespace=''):
+        if namespace:
+            reg = '^%s\/'%(namespace)
+            return self.read_record_list({ID:{'$regex':reg, '$options': 'i'}})
+        else:
+            return self.read_record_list()
+        
+        
             
             
             
