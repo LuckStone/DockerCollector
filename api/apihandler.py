@@ -8,6 +8,7 @@
 import time
 import xmlrpclib
 
+from api.accountmgr import AccountMgr
 from api.apiauthen import APIAuthen
 from api.registrymgr import RegistryMgr
 from common.util import Result, LawResult
@@ -62,8 +63,8 @@ class APIHandler(object):
     def init(self):
         self.init_method(self,self.moduleId)
         
-        self.User = UserMgr()
-        self.init_method(self.User,"User")
+        self.account = AccountMgr()
+        self.init_method(self.account,"account")
         
         self.registry = RegistryMgr()
         self.init_method(self.registry,"registry")

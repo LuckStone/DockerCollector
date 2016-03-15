@@ -38,6 +38,23 @@ class RepositoryDBImpl(DBBase):
         if rlt.success and rlt.content>0:
             return True
         return False
+    
+    def save_repository(self, namespace, repository, actor):
+        rlt = self.count({ID: repository})
+        if rlt.success and rlt.content>0:
+            return rlt
+
+        data = {ID:repository, 
+                'push_time':NowMilli(),
+                'is_public':True, 
+                'delete':0, 
+                'desc':'', 
+                'namespace':namespace,
+                'user_id':actor.get('name','system')}
+        rlt = self.insert(data)
+        if not rlt.success:
+            Log(1, 'save_repository[%s]fail,as[%s]'%(rlt.content))
+        return rlt
         
     def upsert_repository(self, repositories):
         rlt = self.read_record_list(fields=[])
@@ -76,8 +93,9 @@ class RepositoryDBImpl(DBBase):
         
     def list_repository(self, namespace=''):
         if namespace:
-            reg = '^%s\/'%(namespace)
-            return self.read_record_list({ID:{'$regex':reg, '$options': 'i'}})
+            #reg = '^%s\/'%(namespace)
+            #return self.read_record_list({namespace:{'$regex':reg, '$options': 'i'}})
+            return self.read_record_list({'namespace':namespace})
         else:
             return self.read_record_list()
         

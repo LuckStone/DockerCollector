@@ -10,7 +10,9 @@ from frame.authen import ring8
 from frame.errcode import FAIL
 from mongodb.dbconst import MAIN_DB_NAME
 from mongoimpl.registry.layerdbimpl import LayerDBImpl
+from mongoimpl.registry.namespacedbimpl import NamespaceDBImpl
 from mongoimpl.registry.notifydbimpl import NotifyDBImpl
+from mongoimpl.registry.repositorydbimpl import RepositoryDBImpl
 from mongoimpl.registry.tagdbimpl import TagDBImpl
 from registry.registryclient import RegistryClient
 
@@ -43,9 +45,9 @@ class NotifyMgr(object):
             # HEAD 请求用于检测manifest是否存在
             if event['request']['method'] == 'HEAD':
                 return rlt
-            return self.parse_pull_action(event.get('target',None))
+            return self.parse_pull_action(event.get('target',{}))
         elif action == 'push':
-            return self.parse_push_action(event.get('target',None))
+            return self.parse_push_action(event.get('target',None), event.get('actor',{}), event.get('source',{}))
         else:
             Log(1, 'unknow action[%s]'%(action))
             return Result('', FAIL, 'unknow action')
@@ -58,9 +60,14 @@ class NotifyMgr(object):
             return LayerDBImpl.instance().add_layer_pull_num(event['digest'])
 
         
-    def parse_push_action(self, event):
+    def parse_push_action(self, event, actor, source):
         if not self.is_manifest(event['repository'], event['url']):
             Log(3,'this is a layer')
+            return 
+        namespace = self.parse_repository_name(event['repository'])
+        if namespace:
+            NamespaceDBImpl.instance().save_namespace(namespace, actor)
+        RepositoryDBImpl.instance().save_repository(namespace, event['repository'], actor)
             
         #if not RepositoryDBImpl.instance().is_repository_exsit(event['repository']):
         client = RegistryClient()
@@ -70,11 +77,9 @@ class NotifyMgr(object):
             return rlt
         
         if not TagDBImpl.instance().is_tag_exist(event['repository'], '', rlt.content['digest']):
-            TagDBImpl.instance().update_tag_info(event['repository'], '', rlt.content['digest'])
+            TagDBImpl.instance().create_tag(event['repository'], '', rlt.content, actor, source)
             LayerDBImpl.instance().save_layer_info(rlt.content)
-            
-                
-        
+
 
     def is_manifest(self, repository, url):
         repository = repository.replace('/', '\/')
@@ -83,4 +88,9 @@ class NotifyMgr(object):
             return True
         return False
 
-    
+    def parse_repository_name(self, repository):
+        m = re.search(r"([^\s\/]+)\/[^\s]+", repository)
+        if m:
+            return m.group(1)
+        return ''
+        

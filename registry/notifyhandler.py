@@ -68,8 +68,8 @@ class NotifyHandler(object):
         
         self.activate_server()
         
-        client = RegistryClient()
-        client.load_registry_data()
+#         client = RegistryClient()
+#         client.load_registry_data()
         
         
     

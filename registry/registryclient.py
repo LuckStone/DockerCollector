@@ -59,6 +59,7 @@ class RegistryClient(CURLClient):
             if rlt.success:
                 if not TagDBImpl.instance().is_tag_exist(repository_name, tag, rlt.content['digest']):
                     TagDBImpl.instance().update_tag_info(repository_name, tag, rlt.content['digest'])
+                    # @todo 此时数据库中的层记录已经无效，因为层的内容改变的时候，id也会变化
                     LayerDBImpl.instance().save_layer_info(rlt.content)
     
     def listing_repositories( self, num, last=0 ):

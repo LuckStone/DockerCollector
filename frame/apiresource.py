@@ -32,7 +32,7 @@ class APIResource(resource.Resource):
         if len(arr) == 0:
             return self.process(request, 'whatTime')
         
-        return self.process(request, 'get' + arr[0], arr[1:])
+        return self.process(request, arr[0], arr[1:])
     
     def render_PUT(self,request):
         arr = request.path.split("/")

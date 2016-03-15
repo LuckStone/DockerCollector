@@ -5,16 +5,19 @@
 Implement Order data manage
 """
 
+
 import threading
 
 from common.guard import LockGuard
+from common.util import NowMilli
+from frame.Logger import Log
 from mongodb.dbbase import DBBase
-from mongodb.dbconst import MAIN_DB_NAME, NOTIFICATION_TABLE
+from mongodb.dbconst import MAIN_DB_NAME, NAMESPACE_TABLE, ID
 
 
-class NotifyDBImpl(DBBase):
+class NamespaceDBImpl(DBBase):
     db = MAIN_DB_NAME
-    collection = NOTIFICATION_TABLE
+    collection = NAMESPACE_TABLE
     __lock = threading.Lock()
     
     @classmethod
@@ -31,10 +34,26 @@ class NotifyDBImpl(DBBase):
     def __init__(self):
         DBBase.__init__(self, self.db, self.collection)
         
+    def save_namespace(self, namespace, actor):
+        rlt = self.count({ID:namespace})
+        if rlt.success and rlt.content > 0:
+            Log(1, 'save_namespace The name space exist. repository[%s]'%(namespace))
+            return rlt
+
+        data = {ID:namespace,'create_time':NowMilli(), 'owner_id':actor.get('name','system'), 'desc':''}
+        ret = self.insert(data)
+        if not ret.success:
+            Log(1, 'save namespace[%s] fail,as[%s]'%(namespace, rlt.message))
+        return ret
     
+        
             
+        
     
-             
+        
+        
+            
+            
             
             
             

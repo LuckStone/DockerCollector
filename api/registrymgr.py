@@ -19,10 +19,10 @@ class RegistryMgr(object):
         '''
     
     @ring8
-    def getrepositorys(self, namespace=''):
+    def repositorys(self, namespace=''):
         return RepositoryDBImpl.instance().list_repository(namespace)
     
     @ring8
-    def getinfo(self):
+    def info(self):
         return RepositoryDBImpl.instance().exec_db_script('overview')
         

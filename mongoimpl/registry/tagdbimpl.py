@@ -33,6 +33,19 @@ class TagDBImpl(DBBase):
     def __init__(self):
         DBBase.__init__(self, self.db, self.collection)
         
+    def create_tag(self, repository, tag, image, actor, source):
+        size = 0
+        for layer in image['fsLayers']:
+            size += layer['size']
+        
+        data = {'repository':repository, 'tag_name':tag, 'digest':image['digest'], 'user_id':actor.get('name',''), 'size':size}
+        data.update(source)
+        rlt = self.create(data)
+        if not rlt.success:
+            Log(1, 'create_tag repository[%s]tag_name[%s]digest[%s]fail'%(repository, tag, image['digest']))
+        return rlt
+        
+        
     def update_tag_info(self, repository, tag, digest):
         rlt = self.update({'repository':repository, 'tag_name':tag}, {'digest':digest}, True)
         if not rlt.success:
