@@ -99,7 +99,8 @@ class RepositoryDBImpl(DBBase):
         else:
             return self.read_record_list()
         
-        
+    def read_repo_info(self, repo_name):
+        return self.read_record(repo_name)
             
             
             

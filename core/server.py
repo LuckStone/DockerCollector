@@ -95,7 +95,7 @@ class WebService(service.Service):
         r = RootResource(self)
         r.putChild("event", RegistryNotify(self, self.NotifyHandler))
         r.putChild("api", APIResource(self, self.APIHandler))
-        r.putChild("admin", AjaxResource(self, self.ConsoleHandler))
+        r.putChild("console", AjaxResource(self, self.ConsoleHandler))
         
         return r
     

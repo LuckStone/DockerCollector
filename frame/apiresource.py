@@ -27,8 +27,8 @@ class APIResource(resource.Resource):
 #        self.wwwroot = wwwroot
         
     def render_GET(self,request):
-        arr = [key for key in request.postpath if key]
-            
+        arr = [key for key in request.postpath if key!='']
+
         if len(arr) == 0:
             return self.process(request, 'whatTime')
         
@@ -48,17 +48,19 @@ class APIResource(resource.Resource):
         
         return self.process(request, 'Delete',arr[2:])
     
-    def render_POST(self,request):
-        arr = request.path.split("/")
-        if len(arr) < 4:
-            return 'The url is invalid!'
+    def render_POST(self, request):
+        arr = [key for key in request.postpath if key!='']
             
-        act = 'Save'
-        args = arr[2:]
-        if len(args) == 3:
-            if args[2] not in ['',PAGE,TREE,LIST,SET]:
-                act = args[2]
-                
+        if len(arr) == 0:
+            return self.process(request, 'whatTime')
+            
+        act = 'Save'+ arr[0]
+        args = arr[1:]
+        data = request.content.getvalue()
+        args.append(data)
+        
+        SysLog(1,"render_POST[%s]"%(data))
+
         return self.process(request,act,args)
     
     

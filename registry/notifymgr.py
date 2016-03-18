@@ -9,11 +9,11 @@ from frame.Logger import Log
 from frame.authen import ring8
 from frame.errcode import FAIL
 from mongodb.dbconst import MAIN_DB_NAME
+from mongoimpl.registry.imagedbimpl import ImageDBImpl
 from mongoimpl.registry.layerdbimpl import LayerDBImpl
 from mongoimpl.registry.namespacedbimpl import NamespaceDBImpl
 from mongoimpl.registry.notifydbimpl import NotifyDBImpl
 from mongoimpl.registry.repositorydbimpl import RepositoryDBImpl
-from mongoimpl.registry.tagdbimpl import TagDBImpl
 from registry.registryclient import RegistryClient
 
 
@@ -55,7 +55,7 @@ class NotifyMgr(object):
         
     def parse_pull_action(self, event):
         if self.is_manifest(event['repository'], event['url']):
-            return TagDBImpl.instance().add_tag_pull_num(event['digest'])
+            return ImageDBImpl.instance().add_pull_num(event['digest'])
         else:
             return LayerDBImpl.instance().add_layer_pull_num(event['digest'])
 
@@ -76,8 +76,8 @@ class NotifyMgr(object):
             Log(1, 'parse_push_action.read_tag_detail2 fail,as[%s]'%(rlt.message))
             return rlt
         
-        if not TagDBImpl.instance().is_tag_exist(event['repository'], '', rlt.content['digest']):
-            TagDBImpl.instance().create_tag(event['repository'], '', rlt.content, actor, source)
+        if not ImageDBImpl.instance().is_image_exist(rlt.content['digest']):
+            ImageDBImpl.instance().create_image(event['repository'], rlt.content, actor, source)
             LayerDBImpl.instance().save_layer_info(rlt.content)
 
 

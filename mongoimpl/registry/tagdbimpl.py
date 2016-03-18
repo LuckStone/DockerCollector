@@ -33,13 +33,11 @@ class TagDBImpl(DBBase):
     def __init__(self):
         DBBase.__init__(self, self.db, self.collection)
         
-    def create_tag(self, repository, tag, image, actor, source):
-        size = 0
-        for layer in image['fsLayers']:
-            size += layer['size']
-        
-        data = {'repository':repository, 'tag_name':tag, 'digest':image['digest'], 'user_id':actor.get('name',''), 'size':size}
-        data.update(source)
+    def create_tag(self, repository, tag, image, actor):
+        """
+        # 接收通知消息的时候，不带Tag信息，所以这个函数已经没有使用
+        """
+        data = {'repository':repository, 'tag_name':tag, 'digest':image['digest'], 'user_id':actor.get('name',''),'create_time':NowMilli()}
         rlt = self.create(data)
         if not rlt.success:
             Log(1, 'create_tag repository[%s]tag_name[%s]digest[%s]fail'%(repository, tag, image['digest']))
@@ -66,8 +64,7 @@ class TagDBImpl(DBBase):
             return True
         return False
     
-    def add_tag_pull_num(self, digest):
-        self.find_and_modify_num({'digest':digest}, {'pull_num':1}, True)
+    
         
         
     def upsert_tags(self, repository, tags):
@@ -106,11 +103,12 @@ class TagDBImpl(DBBase):
         return Result(len(new_tags) + len(lost_tags))
         
         
+    def get_tag_info(self, repo_name, tag_name):
+        return self.read_record({'repository':repo_name, 'tag_name':tag_name})
             
             
-            
-            
-            
+    def get_tag_list(self, repo_name):
+        return self.read_record_list({'repository':repo_name})
             
             
             

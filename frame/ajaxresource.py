@@ -27,11 +27,12 @@ class AjaxResource(resource.Resource):
 #        self.wwwroot = wwwroot
         
     def render_GET(self,request):
-        arr = request.path.split("/")
-        if len(arr) < 4:
+        arr = [key for key in request.postpath if key!='']
+        #arr = request.path.split("/")
+        if len(arr) < 3:
             return 'The url is invalid!'
         
-        return self.process(request, 'Read', arr[2:])
+        return self.process(request, 'Read', arr)
     
     def render_PUT(self,request):
         arr = request.path.split("/")

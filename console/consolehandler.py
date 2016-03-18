@@ -1,10 +1,18 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 20016-2016 The Cloudsoar.
 # See LICENSE for details.
+"""
+分发控制台提交的请求
+"""
+
+import time
+import xmlrpclib
 
 from common.util import Result, LawResult
 from console.configuremgr import ConfigureMgr
 from console.consoleauthen import ConsoleAuthen
+from console.orgnizationmgr import OrgnizationMgr
+from console.registrymgr import RegistryMgr
 from console.taskmgr import TaskMgr
 from console.usermgr import UserMgr
 from frame.Logger import PrintStack, SysLog, Log
@@ -12,12 +20,7 @@ from frame.authen import ring8
 from frame.errcode import ERR_METHOD_CONFLICT, ERR_SERVICE_INACTIVE, \
     PERMISSION_DENIED_ERR, INTERNAL_OPERATE_ERR, INTERNAL_EXCEPT_ERR
 from frame.exception import OPException
-import time
-import xmlrpclib
 
-"""
-分发控制台提交的请求
-"""
 
 Fault = xmlrpclib.Fault
 _ALL = "All"
@@ -60,7 +63,7 @@ class ConsoleRequestHandler(object):
         
         # 如果快捷调用存在，要受快捷方式的权限控制
         if shortcutSign in self.method_list:
-            if ring in self.method_list[methodSign]:
+            if ring in self.method_list[shortcutSign]:
                 return mod_name
             return None
         
@@ -81,6 +84,8 @@ class ConsoleRequestHandler(object):
         self.Task = TaskMgr()
         self.init_method(self.Task,"Task")
         
+        self.registry = RegistryMgr()
+        self.init_method(self.registry,"registry")
         
         self.activate_server()
         

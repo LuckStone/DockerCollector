@@ -35,12 +35,30 @@ class ImageDBImpl(DBBase):
             Log(1, 'upsert_image_info[%s]fail,as[%s]'%(repository, rlt.message))
         
             
+    def is_image_exist(self, digest):
+        """
+        # digest 指向一个文件，和repository无关，只要内容一样，digest值就是一样的
+        """
+        rlt = self.count({ID:digest})
+        if rlt.success and rlt.content>0:
+            return True
+        return False       
+            
+    def create_image(self, repository, image, actor, source):
+        size = 0
+        for layer in image['fsLayers']:
+            size += layer['size']
+        
+        data = {'repository':repository, ID:image['digest'], 'user_id':actor.get('name',''), 'size':size}
+        data.update(source)
+        rlt = self.insert(data)
+        if not rlt.success:
+            Log(1, 'create_image repository[%s]digest[%s]fail'%(repository, image['digest']))
+        return rlt        
             
             
-            
-            
-            
-            
+    def add_pull_num(self, digest):
+        self.find_and_modify_num({ID:digest}, {'pull_num':1}, True)
             
             
             

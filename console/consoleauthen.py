@@ -99,7 +99,7 @@ class ConsoleAuthen(authen):
             access_key = userinfo["access_key"]
             
             if access_uuid not in self.__token:
-                self.__token[access_uuid] = {"access_key":access_key,"ring":role,"timestamp":time.time()}
+                self.__token[access_uuid] = {"access_key":access_key, "ring":role, "timestamp":time.time()}
             else:
                 token = self.__token[access_uuid]
                 token["timestamp"] = time.time()

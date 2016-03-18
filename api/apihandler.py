@@ -12,7 +12,6 @@ from api.accountmgr import AccountMgr
 from api.apiauthen import APIAuthen
 from api.registrymgr import RegistryMgr
 from common.util import Result, LawResult
-from console.usermgr import UserMgr
 from frame.Logger import PrintStack, SysLog, Log
 from frame.authen import ring8
 from frame.errcode import ERR_METHOD_CONFLICT, ERR_SERVICE_INACTIVE, \
