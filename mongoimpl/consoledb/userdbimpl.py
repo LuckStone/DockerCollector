@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 20016-2016 The Cloudsoar.
 # See LICENSE for details.
-
-from common.guard import LockGuard
-from mongodb.dbbase import DBBase
-from mongodb.dbconst import MAIN_DB_NAME, ID, USER_TABLE
-import threading
-
 """
 实现用户信息相关的数据库操作
 """
+
+import threading
+
+from common.guard import LockGuard
+from common.util import Result
+from frame.Logger import Log
+from frame.errcode import INVALID_USER_INFO_ERR, USER_EXIST_ALREADY_ERR
+from mongodb.dbbase import DBBase
+from mongodb.dbconst import MAIN_DB_NAME, ID, USER_TABLE
+
 
 a = ["access_uuid","security_key","level","description","createTime","name","state","login_name","login_pass"]
 
@@ -48,8 +52,22 @@ class UserDBImpl(DBBase):
         else:
             return None
     
-    def delete_user(self,access_uuid):
-        return self.remove({"access_uuid":access_uuid})
+    def delete_user(self, user_id):
+        return self.remove({ID:user_id})
+    
+    def create_new_user(self, user_info):
+        user_id = user_info.get(ID, None)
+        if not user_id:
+            return Result('', INVALID_USER_INFO_ERR, 'User info invalid.')
+
+        if self.is_exist({ID:user_id}):
+            return Result('', USER_EXIST_ALREADY_ERR, 'User exist already.')
+        
+        rlt = self.insert(user_info)
+        if not rlt.success:
+            Log(1, 'create_new_user fail,as[%s]'%(rlt.message))
+        return rlt
+            
         
      
 

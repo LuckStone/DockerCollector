@@ -244,6 +244,8 @@ class CURLClient:
                 return response
         except Exception, e:
             return Response('', '', HTTP_EXCEPTION, str(e))
+        finally:
+            self.token = ''
         
     def do_delete( self, url ):
         try:

@@ -46,7 +46,7 @@ class RepositoryDBImpl(DBBase):
 
         data = {ID:repository, 
                 'push_time':NowMilli(),
-                'is_public':True, 
+                'permission':'public', 
                 'delete':0, 
                 'desc':'', 
                 'namespace':namespace,
@@ -91,13 +91,16 @@ class RepositoryDBImpl(DBBase):
         return Result(len(new_repos) + len(lost_repos))
         
         
-    def list_repository(self, namespace=''):
+    def list_repository(self, namespace='', user_id=''):
+        query = {}
         if namespace:
+            query['namespace'] = namespace
             #reg = '^%s\/'%(namespace)
             #return self.read_record_list({namespace:{'$regex':reg, '$options': 'i'}})
-            return self.read_record_list({'namespace':namespace})
-        else:
-            return self.read_record_list()
+        if user_id:
+            query['user_id'] = user_id
+        return self.read_record_list(query)
+
         
     def read_repo_info(self, repo_name):
         return self.read_record(repo_name)

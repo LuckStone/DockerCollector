@@ -227,5 +227,13 @@ class DBBase(object):
         else:
             return Result(count)
             
-        
+    def is_exist(self, query):
+        rlt = self.count(query)
+        if not rlt.success:
+            Log(1,'DBBase.is_exist return fail,as[%s]'%(rlt.message))
+            return False
+            
+        if rlt.success and rlt.content > 0:
+            return True
+        return False    
         

@@ -32,7 +32,7 @@ class RegistryClient(CURLClient):
         username = 'registry_username'
         pwd = 'registry_password'
         #domain = GetSysConfig('registry_domain') or '192.168.2.55:5000'
-        domain = '192.168.2.55:5000'
+        domain = '192.168.12.55:5000'
         CURLClient.__init__(self, username, pwd, domain)
         
 

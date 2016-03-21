@@ -10,11 +10,6 @@ import json
 import xmlrpclib
 Fault = xmlrpclib.Fault
 
-PAGE = 'Page'
-TREE = 'Tree'
-LIST = 'List'
-SET = 'set'
-
 class APIResource(resource.Resource):
     NOT_FOUND = 8001
     FAILURE = 8002
@@ -42,11 +37,14 @@ class APIResource(resource.Resource):
         return self.process(request, 'Update', arr[2:] )
     
     def render_DELETE(self,request):
-        arr = request.path.split("/")
-        if len(arr) < 4:
-            return 'The url is invalid!'
+        arr = [key for key in request.postpath if key!='']
+            
+        if len(arr) == 0:
+            return self.process(request, 'whatTime')
         
-        return self.process(request, 'Delete',arr[2:])
+        act = 'delete_'+ arr[0]
+        
+        return self.process(request, act, arr[1:])
     
     def render_POST(self, request):
         arr = [key for key in request.postpath if key!='']
@@ -54,7 +52,7 @@ class APIResource(resource.Resource):
         if len(arr) == 0:
             return self.process(request, 'whatTime')
             
-        act = 'Save'+ arr[0]
+        act = 'save_'+ arr[0]
         args = arr[1:]
         data = request.content.getvalue()
         args.append(data)

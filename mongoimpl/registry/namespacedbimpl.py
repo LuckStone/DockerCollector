@@ -9,8 +9,9 @@ Implement Order data manage
 import threading
 
 from common.guard import LockGuard
-from common.util import NowMilli
+from common.util import NowMilli, Result
 from frame.Logger import Log
+from frame.errcode import INVALID_NAMESPACE_INFO_ERR, NAMESPACE_EXIST_ALREADY_ERR
 from mongodb.dbbase import DBBase
 from mongodb.dbconst import MAIN_DB_NAME, NAMESPACE_TABLE, ID
 
@@ -46,6 +47,18 @@ class NamespaceDBImpl(DBBase):
             Log(1, 'save namespace[%s] fail,as[%s]'%(namespace, rlt.message))
         return ret
     
+    def create_new_nspc(self, info):
+        namespace = info.get(ID, None)
+        if not namespace:
+            return Result('', INVALID_NAMESPACE_INFO_ERR, 'Namespace info invalid.')
+
+        if self.is_exist({ID:namespace}):
+            return Result('', NAMESPACE_EXIST_ALREADY_ERR, 'Namespace exist already.')
+        
+        rlt = self.insert(info)
+        if not rlt.success:
+            Log(1, 'create_new_nspc fail,as[%s]'%(rlt.message))
+        return rlt
         
             
         

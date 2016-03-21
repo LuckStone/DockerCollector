@@ -256,7 +256,7 @@ class DBMgr(object):
         return self.conn[db][collection].update(query,{"$set":value},False,False,False,True)
 
     def find_and_modify(self,db,collection,query,value,upsert=False):
-        return self.conn[db][collection].find_one_and_update(query,{'$set':value},upsert)
+        return self.conn[db][collection].find_one_and_update(query,{'$set':value},upsert=upsert)
 
     
     def remove_all(self,db,collection):

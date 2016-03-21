@@ -54,7 +54,9 @@ class RegistryMgr(object):
         
         
         
-        
+    @ring8
+    def ReadRequestInfo(self, cn,tag,data):
+        return Result({'url':'/API','method':'GET'})
     
     
     
