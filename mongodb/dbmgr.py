@@ -12,8 +12,8 @@ import subprocess
 import threading
 import time
 
-from pymongo.connection import Connection
 from pymongo.errors import AutoReconnect
+from pymongo.mongo_client import MongoClient
 
 from common.guard import LockGuard
 from frame.Logger import Log, PrintStack
@@ -56,7 +56,7 @@ class DBMgr(object):
         self.host = db_host or GetSysConfig("db_host")
         self.osname = None
         try:
-            self.conn = Connection(self.host, self.port)
+            self.conn = MongoClient(self.host, self.port)
         except Exception,e:
             PrintStack()
             Log(1,"VFOSDBMgr connect to Mongdb fail,as[%s]"%(str(e)))
@@ -64,7 +64,7 @@ class DBMgr(object):
             Log(3,"Connect to db success.")
         
     def autoConnect(self):
-        self.conn = Connection(self.host, self.port)
+        self.conn = MongoClient(self.host, self.port)
         
     def init_db_config(self):
         if self.osname :
@@ -154,7 +154,7 @@ class DBMgr(object):
         '''
         try:
             if self.conn is None:
-                self.conn = Connection(self.host, self.port)
+                self.conn = MongoClient(self.host, self.port)
             self.conn.server_info()
         except Exception,e:
             Log(1,"Get mongodb server info fail,as[%s]"%(str(e)))

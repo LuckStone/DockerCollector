@@ -8,7 +8,7 @@ import json
 from common.util import Result
 from frame.Logger import Log
 from frame.authen import ring8
-from frame.errcode import INVALID_JSON_DATA_ERR
+from frame.errcode import INVALID_JSON_DATA_ERR, INVALID_PARAM_ERR
 from mongoimpl.registry.namespacedbimpl import NamespaceDBImpl
 from mongoimpl.registry.repositorydbimpl import RepositoryDBImpl
 from mongoimpl.registry.tagdbimpl import TagDBImpl
@@ -48,11 +48,38 @@ class RegistryMgr(object):
         
     @ring8    
     def namespaces(self):
-        return NamespaceDBImpl.instance().read_record_list()
+        query = {}
+        rlt = NamespaceDBImpl.instance().exec_db_script('namespaces',query, 10, 0)
+        if not rlt.success:
+            Log(1, 'namespaces.read_record_list fail,as[%s]'%(rlt.message))
+            
+        return rlt
     
     @ring8    
+    def save_namespace(self, post_data):
+        try:
+            namespace = json.loads(post_data.replace("'", '"'))
+        except Exception,e:
+            Log(1,"save_account.parse data to json fail,input[%s]"%(post_data))
+            return Result('',INVALID_JSON_DATA_ERR,str(e))
+        else:
+            return NamespaceDBImpl.instance().create_new_nspc(namespace)    
+        
+    @ring8    
     def namespace(self, namespace):
-        return NamespaceDBImpl.instance().read_record(namespace)
+        NamespaceDBImpl.instance().read_record(namespace)
+        
+    @ring8
+    def delete_namespace(self, namespace=''):
+        namespace = namespace.strip()
+        if namespace=='':
+            return Result('', INVALID_PARAM_ERR, 'Invalid namespace' )
+        
+        rlt = NamespaceDBImpl.instance().delete_namespace(namespace)
+        if not rlt.success:
+            Log(1, 'delete_namespace[%s] fail,as[%s]'%(namespace, rlt.message))
+        return rlt
+        
     
     @ring8    
     def repository(self, namespace, repo_name=''):
@@ -77,15 +104,7 @@ class RegistryMgr(object):
         return TagDBImpl.instance().get_tag_info(namespace, tag_name)
     
     
-    @ring8    
-    def save_namespace(self, post_data):
-        try:
-            namespace = json.loads(post_data.replace("'", '"'))
-        except Exception,e:
-            Log(1,"save_account.parse data to json fail,input[%s]"%(post_data))
-            return Result('',INVALID_JSON_DATA_ERR,str(e))
-        else:
-            return NamespaceDBImpl.instance().create_new_nspc(namespace)
+    
     
     
     

@@ -1,7 +1,7 @@
 @echo off
 
 
-set PYTHONPATH=".:%CD%"
+set PYTHONPATH=".;%CD%"
 
 start /b  python ServerMain.py
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 20016-2016 The Cloudsoar.
 # See LICENSE for details.
 
@@ -115,6 +116,7 @@ class APIResource(resource.Resource):
         try:
             content = json.dumps(ret)
             request.setHeader("content-length", str(len(content)))
+            request.setHeader("Access-Control-Allow-Origin", "*")
             request.write(content)
         except Exception, e:
             SysLog(1,"TestResource._cbRender fail [%s]"%str(e))

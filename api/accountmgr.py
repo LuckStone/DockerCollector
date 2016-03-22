@@ -96,8 +96,12 @@ class AccountMgr(object):
             return UserDBImpl.instance().create_new_user(account)
     
     @ring8    
-    def grp(self, namespace):
+    def groups(self, namespace):
         return GroupDBImpl.instance().read_record_list({'namespace':namespace}) 
+    
+    @ring8    
+    def group(self, group_id):
+        return GroupDBImpl.instance().read_record({ID:group_id}) 
     
     @ring8    
     def is_group_exist(self, namespace, group_name):
@@ -110,7 +114,7 @@ class AccountMgr(object):
         return GroupDBImpl.instance().is_exist({'namespace':namespace,'group_name':group_name})
     
     @ring8    
-    def save_grp(self, post_data):
+    def save_group(self, post_data):
         try:
             group_info = json.loads(post_data.replace("'", '"'))
         except Exception,e:
@@ -120,7 +124,7 @@ class AccountMgr(object):
             return GroupDBImpl.instance().create_new_group(group_info)
     
     @ring8
-    def delete_grp(self, group_id=''):
+    def delete_group(self, group_id=''):
         group_id = group_id.strip()
         if group_id=='':
             return Result('', INVALID_PARAM_ERR, 'Invalid group id' )

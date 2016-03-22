@@ -61,7 +61,8 @@ class NamespaceDBImpl(DBBase):
         return rlt
         
             
-        
+    def delete_namespace(self, namespace):
+        return self.remove({ID:namespace}) 
     
         
         
