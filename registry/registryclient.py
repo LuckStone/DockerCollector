@@ -45,13 +45,15 @@ class RegistryClient(CURLClient):
         RepositoryDBImpl.instance().upsert_repository(data['repositories'])
         
         for repo in data['repositories']:
-            rlt = self.listing_image_tags(repo)
-            if rlt.success:
-                TagDBImpl.instance().upsert_tags(repo, rlt.content['tags'])
-                self.load_tag_data(repo, rlt.content['tags'])
-            else:
-                Log(1, 'load_registry_data.listing_image_tags fail,as[no tags], repository[%s]'%(repo))
+            self.load_repo_data(repo)
                 
+    def load_repo_data(self, repository):
+        rlt = self.listing_image_tags(repository)
+        if rlt.success:
+            TagDBImpl.instance().upsert_tags(repository, rlt.content['tags'])
+            self.load_tag_data(repository, rlt.content['tags'])
+        else:
+            Log(1, 'load_registry_data.listing_image_tags fail,as[no tags], repository[%s]'%(repository))
                 
     def load_tag_data(self, repository_name, tags):
         for tag in tags:

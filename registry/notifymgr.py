@@ -75,10 +75,11 @@ class NotifyMgr(object):
         if not rlt.success:
             Log(1, 'parse_push_action.read_tag_detail2 fail,as[%s]'%(rlt.message))
             return rlt
-        
+        client.load_repo_data(event['repository'])
         if not ImageDBImpl.instance().is_image_exist(rlt.content['digest']):
             ImageDBImpl.instance().create_image(event['repository'], rlt.content, actor, source)
             LayerDBImpl.instance().save_layer_info(rlt.content)
+            
 
 
     def is_manifest(self, repository, url):

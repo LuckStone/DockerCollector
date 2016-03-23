@@ -61,6 +61,13 @@ class ImageDBImpl(DBBase):
         self.find_and_modify_num({ID:digest}, {'pull_num':1}, True)
             
             
-            
+    def get_image_info(self, digest):
+        rlt = self.read_record(digest)
+        if rlt.success:
+            return rlt.content
+        else:
+            Log(1, 'get_image_info[%s] fail,as[%s]'%(digest, rlt.message))
+            return {}
+                
             
         

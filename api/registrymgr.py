@@ -4,11 +4,15 @@
 
 
 import json
+import os
 
+from common.guard import FileGuard
 from common.util import Result
 from frame.Logger import Log
 from frame.authen import ring8
-from frame.errcode import INVALID_JSON_DATA_ERR, INVALID_PARAM_ERR
+from frame.errcode import INVALID_JSON_DATA_ERR, INVALID_PARAM_ERR, \
+    LOG_FILE_NOT_EXIST_ERR
+from mongoimpl.registry.imagedbimpl import ImageDBImpl
 from mongoimpl.registry.namespacedbimpl import NamespaceDBImpl
 from mongoimpl.registry.repositorydbimpl import RepositoryDBImpl
 from mongoimpl.registry.tagdbimpl import TagDBImpl
@@ -66,8 +70,11 @@ class RegistryMgr(object):
             return NamespaceDBImpl.instance().create_new_nspc(namespace)    
         
     @ring8    
-    def namespace(self, namespace):
-        NamespaceDBImpl.instance().read_record(namespace)
+    def namespace(self, namespace=''):
+        namespace = namespace.strip()
+        if namespace=='':
+            return Result('', INVALID_PARAM_ERR, 'Invalid namespace' )
+        return NamespaceDBImpl.instance().read_record(namespace)
         
     @ring8
     def delete_namespace(self, namespace=''):
@@ -101,10 +108,56 @@ class RegistryMgr(object):
             namespace = '%s/%s'%(namespace, repo_name)
         else:
             tag_name = repo_name
-        return TagDBImpl.instance().get_tag_info(namespace, tag_name)
+        rlt = TagDBImpl.instance().get_tag_info(namespace, tag_name)
+        if not rlt.success:
+            Log(1, 'tag.get_tag_info[%s][%s]fail,as[%s]'%(namespace, tag_name, rlt.message))
+            return rlt
+        
+        info = ImageDBImpl.instance().get_image_info(rlt.content['digest'])
+        if not info:
+            return rlt
+        
+        rlt.content['size'] = info['size']
+        rlt.content['user_id'] = info['user_id']
+        rlt.content['pull_num'] = info['pull_num']
+        return rlt
+        
     
     
     
+    @ring8
+    def logs(self, line_num, skip=0):
+        try:
+            line_num = int(line_num)
+            skip = int(skip)
+        except Exception:
+            return Result('', INVALID_PARAM_ERR, 'Param invalid')
+        
+        workdir = os.path.abspath('.')
+        workdir = os.path.join(workdir,"Trace")
+        workdir = os.path.join(workdir,"logs")
+        log_path = os.path.join(workdir,"operation.log")
+
+        if not os.path.isfile(log_path):
+            Log(1,"The log file [%s] is not exist."%(log_path))
+            return Result('', LOG_FILE_NOT_EXIST_ERR, 'File not exist')
+        txt = ''
+        size = skip
+        with FileGuard(log_path, 'r') as fp:
+            fp.seek(skip)
+            
+            for line in fp:
+                if line_num == 0:
+                    break;
+                size += len(line)
+                line_num -= 1                
+                txt += line
+                txt += '<br />'
+        return Result(txt,0,size)
+
+            
+            
+        
     
     
     

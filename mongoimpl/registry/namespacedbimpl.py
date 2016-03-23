@@ -41,7 +41,7 @@ class NamespaceDBImpl(DBBase):
             Log(1, 'save_namespace The name space exist. repository[%s]'%(namespace))
             return rlt
 
-        data = {ID:namespace,'create_time':NowMilli(), 'owner_id':actor.get('name','system'), 'desc':''}
+        data = {ID:namespace,'create_time':NowMilli(), 'owner_id':actor.get('name','system'), 'desc':'','permission':'public'}
         ret = self.insert(data)
         if not ret.success:
             Log(1, 'save namespace[%s] fail,as[%s]'%(namespace, rlt.message))

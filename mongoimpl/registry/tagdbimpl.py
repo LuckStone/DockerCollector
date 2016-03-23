@@ -104,7 +104,7 @@ class TagDBImpl(DBBase):
         
         
     def get_tag_info(self, repo_name, tag_name):
-        return self.read_record({'repository':repo_name, 'tag_name':tag_name})
+        return self.read_record_data({'repository':repo_name, 'tag_name':tag_name})
             
             
     def get_tag_list(self, repo_name):
