@@ -55,6 +55,7 @@ class NamespaceDBImpl(DBBase):
         if self.is_exist({ID:namespace}):
             return Result('', NAMESPACE_EXIST_ALREADY_ERR, 'Namespace exist already.')
         
+        info['create_time'] = NowMilli()
         rlt = self.insert(info)
         if not rlt.success:
             Log(1, 'create_new_nspc fail,as[%s]'%(rlt.message))

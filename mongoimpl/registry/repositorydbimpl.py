@@ -104,6 +104,12 @@ class RepositoryDBImpl(DBBase):
         
     def read_repo_info(self, repo_name):
         return self.read_record(repo_name)
+    
+    def get_repo_num(self, namespace):
+        rlt = self.count({'namespace':namespace})
+        if rlt.success:
+            return rlt.content
+        return 0
             
             
             

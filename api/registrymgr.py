@@ -41,7 +41,7 @@ class RegistryMgr(object):
             query = {}
 
         
-        rlt = RepositoryDBImpl.instance().exec_db_script('repositories', query, 10, 0)
+        rlt = RepositoryDBImpl.instance().exec_db_script('repositories', query, 10000, 0)
         return rlt
         
         
@@ -74,7 +74,13 @@ class RegistryMgr(object):
         namespace = namespace.strip()
         if namespace=='':
             return Result('', INVALID_PARAM_ERR, 'Invalid namespace' )
-        return NamespaceDBImpl.instance().read_record(namespace)
+        rlt = NamespaceDBImpl.instance().read_record(namespace)
+        if not rlt.success:
+            Log(1, 'namespace.read_record[%s]fail,as[%s]'%(namespace, rlt.message))
+        
+        rlt.content['repo_num'] = RepositoryDBImpl.instance().get_repo_num(namespace)
+        return rlt
+        
         
     @ring8
     def delete_namespace(self, namespace=''):
@@ -141,7 +147,7 @@ class RegistryMgr(object):
         if not os.path.isfile(log_path):
             Log(1,"The log file [%s] is not exist."%(log_path))
             return Result('', LOG_FILE_NOT_EXIST_ERR, 'File not exist')
-        txt = ''
+        arr = []
         size = skip
         with FileGuard(log_path, 'r') as fp:
             fp.seek(skip)
@@ -150,10 +156,10 @@ class RegistryMgr(object):
                 if line_num == 0:
                     break;
                 size += len(line)
-                line_num -= 1                
-                txt += line
-                txt += '<br />'
-        return Result(txt,0,size)
+                line_num -= 1
+                arr.append(line)
+
+        return Result(arr,0,size)
 
             
             
