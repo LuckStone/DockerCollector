@@ -52,15 +52,32 @@ class APIResource(resource.Resource):
             
         if len(arr) == 0:
             return self.process(request, 'whatTime')
+        elif len(arr) == 1:
+            act = arr[0]
+            args = []
+        elif arr[1] in ['add','delete','update']:
+            act = arr[1] + '_'+ arr[0]
+            args = arr[2:]
+        else:
+            act = arr[0]
+            args = arr[1:]
             
-        act = 'save_'+ arr[0]
-        args = arr[1:]
         data = request.content.getvalue()
         args.append(data)
         
         SysLog(1,"render_POST[%s]"%(data))
 
         return self.process(request,act,args)
+    
+    def render_OPTIONS(self, request):
+        arr = [key for key in request.postpath if key!='']
+            
+        if len(arr) == 0:
+            return self.process(request, 'whatTime')
+        
+        act = 'option'+ arr[0]
+        
+        return self.process(request, act, arr[1:])
     
     
     def process(self,request,act,args=[]):

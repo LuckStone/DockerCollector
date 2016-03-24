@@ -48,7 +48,7 @@ class AccountMgr(object):
         return rlt
         
     @ring8
-    def save_login(self, post_data):
+    def login(self, post_data):
         try:
             account = json.loads(post_data.replace("'", '"'))
         except Exception,e:
@@ -69,7 +69,14 @@ class AccountMgr(object):
         
         
     @ring8
-    def delete_account(self, user_id=''):
+    def delete_account(self, post_data):
+        try:
+            _filter = json.loads(post_data.replace("'", '"'))
+        except Exception,e:
+            Log(1,"save_account.parse data to json fail,input[%s]"%(post_data))
+            return Result('',INVALID_JSON_DATA_ERR,str(e))
+        
+        user_id = _filter.get('user_id','')
         user_id = user_id.strip()
         if user_id=='':
             return Result('', INVALID_PARAM_ERR, 'Invalid user id' )
@@ -82,11 +89,11 @@ class AccountMgr(object):
     
         
     @ring8
-    def save_logout(self, user_name):
+    def logout(self, user_name):
         return Result(user_name)
        
     @ring8
-    def save_account(self, post_data):
+    def add_account(self, post_data):
         try:
             account = json.loads(post_data.replace("'", '"'))
         except Exception,e:
@@ -114,7 +121,7 @@ class AccountMgr(object):
         return GroupDBImpl.instance().is_exist({'namespace':namespace,'group_name':group_name})
     
     @ring8    
-    def save_group(self, post_data):
+    def add_group(self, post_data):
         try:
             group_info = json.loads(post_data.replace("'", '"'))
         except Exception,e:
@@ -124,7 +131,14 @@ class AccountMgr(object):
             return GroupDBImpl.instance().create_new_group(group_info)
     
     @ring8
-    def delete_group(self, group_id=''):
+    def delete_group(self, post_data):
+        try:
+            _filter = json.loads(post_data.replace("'", '"'))
+        except Exception,e:
+            Log(1,"save_account.parse data to json fail,input[%s]"%(post_data))
+            return Result('',INVALID_JSON_DATA_ERR,str(e))
+        
+        group_id = _filter.get('group_id','')
         group_id = group_id.strip()
         if group_id=='':
             return Result('', INVALID_PARAM_ERR, 'Invalid group id' )

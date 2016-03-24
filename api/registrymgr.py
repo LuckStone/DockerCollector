@@ -53,14 +53,14 @@ class RegistryMgr(object):
     @ring8    
     def namespaces(self):
         query = {}
-        rlt = NamespaceDBImpl.instance().exec_db_script('namespaces',query, 10, 0)
+        rlt = NamespaceDBImpl.instance().exec_db_script('namespaces',query, 10000, 0)
         if not rlt.success:
             Log(1, 'namespaces.read_record_list fail,as[%s]'%(rlt.message))
             
         return rlt
     
     @ring8    
-    def save_namespace(self, post_data):
+    def add_namespace(self, post_data):
         try:
             namespace = json.loads(post_data.replace("'", '"'))
         except Exception,e:
@@ -83,7 +83,14 @@ class RegistryMgr(object):
         
         
     @ring8
-    def delete_namespace(self, namespace=''):
+    def delete_namespace(self, post_data):
+        try:
+            _filter = json.loads(post_data.replace("'", '"'))
+        except Exception,e:
+            Log(1,"save_account.parse data to json fail,input[%s]"%(post_data))
+            return Result('',INVALID_JSON_DATA_ERR,str(e))
+
+        namespace = _filter.get('namespace_id','')
         namespace = namespace.strip()
         if namespace=='':
             return Result('', INVALID_PARAM_ERR, 'Invalid namespace' )
@@ -103,7 +110,11 @@ class RegistryMgr(object):
         namespace = namespace.strip()
         if repo_name.strip():
             namespace = '%s/%s'%(namespace, repo_name)
-        return TagDBImpl.instance().get_tag_list(namespace)
+        rlt = TagDBImpl.instance().exec_db_script('tags', {'repository':namespace}, 10000, 0)
+        if not rlt.success:
+            Log(1, 'repository.read_tag_list fail,as[%s]'%(rlt.message))
+            
+        return rlt
     
     @ring8
     def tag(self, namespace, repo_name, tag_name=''):
@@ -128,9 +139,6 @@ class RegistryMgr(object):
         rlt.content['pull_num'] = info['pull_num']
         return rlt
         
-    
-    
-    
     @ring8
     def logs(self, line_num, skip=0):
         try:
