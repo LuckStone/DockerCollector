@@ -42,8 +42,8 @@ class UserDBImpl(DBBase):
         return self.insert(user_info)
     
         
-    def update_user(self,_id,vm_info):
-        return self.update({ID:_id},vm_info)
+    def update_user(self,_id, info):
+        return self.update({ID:_id}, info)
     
     def read_user_info(self,access_uuid):
         rlt = self.read_record_list({"access_uuid":access_uuid})

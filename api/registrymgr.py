@@ -67,7 +67,21 @@ class RegistryMgr(object):
             Log(1,"save_account.parse data to json fail,input[%s]"%(post_data))
             return Result('',INVALID_JSON_DATA_ERR,str(e))
         else:
-            return NamespaceDBImpl.instance().create_new_nspc(namespace)    
+            return NamespaceDBImpl.instance().create_new_nspc(namespace)
+        
+    @ring8    
+    def update_namespace(self, _id, post_data):
+        _id = _id.strip()
+        if _id=='':
+            return Result('', INVALID_PARAM_ERR, 'Invalid namespace id' )
+        
+        try:
+            namespace = json.loads(post_data.replace("'", '"'))
+        except Exception,e:
+            Log(1,"save_account.parse data to json fail,input[%s]"%(post_data))
+            return Result('',INVALID_JSON_DATA_ERR,str(e))
+        
+        return NamespaceDBImpl.instance().update_namespace(_id, namespace)   
         
     @ring8    
     def namespace(self, namespace=''):

@@ -3,19 +3,19 @@
 # Copyright (c) 20016-2016 The Cloudsoar.
 # See LICENSE for details.
 
-from frame.Logger import SysLog
-from mongodb.dbconst import MAIN_DB_NAME
-from mongodb.dbmgr import DBMgr
+"""
+initialize database ,create table and insert some system info
+"""
+#reload(sys)
+#sys.setdefaultencoding('utf-8')
+
 import codecs
 import os
 import shutil
 
-"""
-initialize database ,create table and insert some system info
-"""
-
-#reload(sys)
-#sys.setdefaultencoding('utf-8')
+from frame.Logger import SysLog
+from mongodb.dbconst import MAIN_DB_NAME, USER_TABLE, CONFIG_TABLE
+from mongodb.dbmgr import DBMgr
 
 
 class CommonDB(object):
@@ -136,37 +136,14 @@ class CommonDB(object):
     
 def ExportData():
     db = CommonDB(MAIN_DB_NAME)
-#    db.exporttofile("ClassTag",True)
-#    db.export_to_file("NameSpace",True)
-#    
-#    db.export_to_file("Commodity",True)
-#    db.export_to_file("cmo_summary",True)
-#    
-#    db.export_to_file("ProductionOrder",True)
-#    db.export_to_file("PduInstance",True)
-#    db.export_to_file("CommodityType",True)
-#    db.export_to_file("ProductionTask",True)
-#    db.export_to_file("OperationTask",True)
-#    db.export_to_file("SyncTask",True)
-#    
-    db.export_js_column("JsColumn",True)
-#    db.export_PduType("PduType",True)    
-#    db.export_to_file("BaseInfo",True)
-#    db.export_to_file("Price",True)
-#    db.export_to_file("Delivery",True)
-#    db.export_to_file("Relationship",True)
-#    db.export_to_file("Description",True)
-#    db.export_to_file("Other",True)
-#    db.export_to_file("Location",True)
-#    db.export_to_file("Groups",True)
-#    
-#    db.export_to_file("Config",True)
-#    db.export_to_file("CommodityModel",True)
+    db.export_to_file(USER_TABLE, True)
+    db.export_to_file(CONFIG_TABLE, True)
+
 
 def main():
-    ret = DBMgr.instance().init()
+    ret = DBMgr.instance().isDBRuning()
     if not ret:
-        SysLog(1,"setup VFOS fail,database error")
+        SysLog(1,"setup Collector fail,database error")
         return 0
     
     ExportData()

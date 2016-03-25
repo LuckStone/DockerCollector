@@ -3,18 +3,22 @@
 # Copyright (c) 20016-2016 The Cloudsoar.
 # See LICENSE for details.
 
-from mongodb.dbconst import ID, MAIN_DB_NAME, SYNCTASK, CONFIG_TABLE, \
-    USER_TABLE, TASK_TABLE, SUB_TASK_TABLE, IDENTITY_TABLE
-from mongodb.dbmgr import DBMgr
-from frame.Logger import SysLog
+"""
+initialize database ,create table and insert some system info
+"""
+
 import getopt
 import imp
 import os
 import sys
 
-"""
-initialize database ,create table and insert some system info
-"""
+from frame.Logger import SysLog
+from mongodb.dbconst import ID, MAIN_DB_NAME, CONFIG_TABLE, \
+    USER_TABLE, IDENTITY_TABLE, USER_GROUP_TABLE, REPOSITORY_TABLE, \
+    NAMESPACE_TABLE, COMMENT_TABLE, TAG_TABLE, IMAGE_TABLE, \
+    LAYER_TABLE, GROUP_NAMESPACE_TABLE, NOTIFICATION_TABLE
+from mongodb.dbmgr import DBMgr
+
 
 class CommonDB(object):
     def __init__(self,db_name,tables):
@@ -160,19 +164,25 @@ class CommonDB(object):
         for table_name,prefix in self.table_list.iteritems():
             self.add_identity_key(table_name,prefix)
         self.auto_import_data()
-        #self.auto_load_js()
+        self.auto_load_js()
         
 
 Tables = {
-    SYNCTASK:None,
-    CONFIG_TABLE:'CFG',                  # 存放支持修改的配置项
-    
-    USER_TABLE:None,                    # 存放用户信息
-    TASK_TABLE:None,             
-   
-    SUB_TASK_TABLE:None,                # 存放子任务，子任务是任务计划的一部分， 不能单独恢复 
-
+    CONFIG_TABLE:'CFG',                  # 存放支持修改的配置项    
+    USER_TABLE:None,                     # 存放用户信息
+    USER_GROUP_TABLE:None,               # 用户组
+    REPOSITORY_TABLE:None,               # 仓库
+    NAMESPACE_TABLE:None,                # 命名空间
+    COMMENT_TABLE:None,                  # 评论 
+    TAG_TABLE:None,                      # 标签
+    IMAGE_TABLE:None,                    # 
+    LAYER_TABLE:None,                    # 层 
+    USER_GROUP_TABLE:None,               # 用户与组的关系表
+    GROUP_NAMESPACE_TABLE:None,          # 用户组与命名空间的关系    
+    NOTIFICATION_TABLE:None              # Registry 的通知消息
 }
+
+
 
 def main():
     ret = DBMgr.instance().isDBRuning()

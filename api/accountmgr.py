@@ -103,6 +103,20 @@ class AccountMgr(object):
             return UserDBImpl.instance().create_new_user(account)
     
     @ring8    
+    def update_account(self, _id, post_data):
+        _id = _id.strip()
+        if _id=='':
+            return Result('', INVALID_PARAM_ERR, 'Invalid user id' )
+        
+        try:
+            info = json.loads(post_data.replace("'", '"'))
+        except Exception,e:
+            Log(1,"update_account.parse data to json fail,input[%s]"%(post_data))
+            return Result('',INVALID_JSON_DATA_ERR,str(e))
+        
+        return UserDBImpl.instance().update_user(_id, info)
+    
+    @ring8    
     def groups(self, namespace):
         return GroupDBImpl.instance().read_record_list({'namespace':namespace}) 
     

@@ -61,6 +61,14 @@ class NamespaceDBImpl(DBBase):
             Log(1, 'create_new_nspc fail,as[%s]'%(rlt.message))
         return rlt
         
+    def update_namespace(self, _id, info):
+        info.pop(ID, None)
+        
+        info['update_time'] = NowMilli()
+        rlt = self.update({ID:_id}, info)
+        if not rlt.success:
+            Log(1, 'create_new_nspc fail,as[%s]'%(rlt.message))
+        return rlt
             
     def delete_namespace(self, namespace):
         return self.remove({ID:namespace}) 
