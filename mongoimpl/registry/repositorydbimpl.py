@@ -57,7 +57,7 @@ class RepositoryDBImpl(DBBase):
         return rlt
         
     def upsert_repository(self, repositories):
-        rlt = self.read_record_list(fields=[])
+        rlt = self.read_record_list(projection=[])
         if not rlt.success:
             Log(1, 'upsert_repository.read_record_list fail,as[%s]'%(rlt.message))
             return rlt

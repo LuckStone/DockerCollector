@@ -68,7 +68,7 @@ class TagDBImpl(DBBase):
         
         
     def upsert_tags(self, repository, tags):
-        rlt = self.read_record_list({'repository':repository},fields=['tag_name'])
+        rlt = self.read_record_list({'repository':repository},projection=['tag_name'])
         if not rlt.success:
             Log(1, 'upsert_tags.read_record_list fail,as[%s]'%(rlt.message))
             return rlt

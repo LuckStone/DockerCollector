@@ -29,7 +29,7 @@ class AccountMgr(object):
         else:
             query = None
         
-        rlt = UserDBImpl.instance().read_record_list(query, fields=['nick_name','join_time', 'avatar'])
+        rlt = UserDBImpl.instance().read_record_list(query, projection=['nick_name','join_time', 'avatar'])
         if rlt.success:
             for user in rlt.content:
                 user['user_id'] = user.pop(ID)

@@ -61,7 +61,7 @@ class ExtDBImpl(DBBase):
         fields = []
         fields.append(key_map['id'])
         fields.append(key_map['text'])
-        rlt = self.read_record_list(query,fields=fields,sort=key_map.get('sort',[]))
+        rlt = self.read_record_list(query,projection=fields,sort=key_map.get('sort',[]))
         if rlt.success:
             return TreeResult(rlt.content,key_map)
         return rlt
