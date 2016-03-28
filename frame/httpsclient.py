@@ -16,12 +16,14 @@ class HttpsClient():
     
     __config_path = None
     
-    def __init__(self):
+    def __init__(self, user_name, password):
         cert_path = self.get_cert_path()
         if not os.path.isfile(cert_path):
             Log(1,"The cert file [%s] is not exist."%(cert_path))
             return
         self.__config_path = cert_path
+        self.user_name = user_name
+        self.password = password
     
     
     def get_cert_path(self):
@@ -30,8 +32,8 @@ class HttpsClient():
         return os.path.join(workdir,"server.crt")
     
     def do_get(self,url, scope, service):
-        param = {'scope': scope, 'service': service, 'account':'admin'}
-        auth = HTTPBasicAuth('admin', 'badmin')
+        param = {'scope': scope, 'service': service, 'account':self.user_name}
+        auth = HTTPBasicAuth(self.user_name, self.password)
         try:
             r = requests.get(url, verify=False, auth=auth, params=param)
         except Exception, e:
@@ -46,5 +48,5 @@ class HttpsClient():
 
     def do_post(self, url, params):
         body = json.dumps({u"body": u"Sounds great! I'll get right on it!"})
-        auth = HTTPBasicAuth('admin', 'badmin')
+        auth = HTTPBasicAuth(self.user_name, self.password)
         r = requests.post(url, data=body, cert=('/path/server.pem'), auth=auth)

@@ -492,7 +492,7 @@ def ConvertToDatetime(timeStr):
     raise TypeError('Unsupported input type: %s' % type(timeStr))
 
 def NowMilli():
-    return time.time() * 1000
+    return int(time.time() * 1000)
 
 def IsStr(obj):
     return isinstance(obj,unicode) or isinstance(obj,str)

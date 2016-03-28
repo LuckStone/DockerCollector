@@ -13,6 +13,7 @@ import re
 
 from common.util import Result
 from frame.Logger import Log, PrintStack
+from frame.configmgr import GetSysConfig
 from frame.curlclient import CURLClient
 from frame.errcode import FAIL
 from mongoimpl.registry.layerdbimpl import LayerDBImpl
@@ -29,10 +30,10 @@ class RegistryClient(CURLClient):
         '''
         Constructor
         '''
-        username = 'registry_username'
-        pwd = 'registry_password'
-        #domain = GetSysConfig('registry_domain') or '192.168.2.55:5000'
-        domain = '192.168.12.55:5000'
+        username = GetSysConfig('registry_username') or 'admin'
+        pwd = GetSysConfig('registry_password') or 'badmin'
+        domain = GetSysConfig('registry_domain') or '192.168.2.55:5000'
+        #domain = '192.168.12.55:5000'
         CURLClient.__init__(self, username, pwd, domain)
         
 
@@ -127,7 +128,13 @@ class RegistryClient(CURLClient):
     
         
     def read_tag_detail2(self, url):
-        url = url.replace('localhost:5000',self.domain)
+        if url.find('127.0.0.1') >= 0:
+            strinfo = re.compile('\/127.0.0.1[:]{0,1}\d*\/')
+            url = strinfo.sub('/'+ self.domain + '/',url)
+        elif url.find('localhost') >= 0:
+            strinfo = re.compile('\/localhost[:]{0,1}\d*\/')
+            url = strinfo.sub('/'+ self.domain + '/',url)
+        
         response = self.do_get(url)
         if response.fail:
             response.log('repository_detail')

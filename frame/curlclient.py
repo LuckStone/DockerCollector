@@ -225,7 +225,7 @@ class CURLClient:
             
             data[arr[0]] = arr[1].replace('"','')
         
-        client = HttpsClient()
+        client = HttpsClient(self.user_access_id, self.user_secret_key)
         rlt = client.do_get(data['Bearer realm'], data['scope'], data['service'])
         if rlt.success:
             self.token = rlt.content['token']
